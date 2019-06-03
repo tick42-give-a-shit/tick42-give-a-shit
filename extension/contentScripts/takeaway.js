@@ -46,7 +46,7 @@ const domContentLoadedCallback = () => {
             orders = takeaway;
         })
     });
-    document.createElement("SPAN").innerText = "";
+    // document.createElement("SPAN").innerText = "";
 };
 
 
