@@ -1,0 +1,11 @@
+{
+    "name": "got-email-bridge",
+    "type": "window",
+    "service": true,
+    "hidden": true,
+    "autoStart": true,
+    "details": {
+        "hidden": true,
+        "url": "http://localhost:9090/index.html"
+    }
+}
