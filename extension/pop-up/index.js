@@ -146,7 +146,10 @@ const mapContextToRestroomIds = (restroom) => {
 };
 
 const getInfoFromBackgoundJs = () => {
-    chrome.runtime.getBackgroundPage(updateRestrooms);
+    chrome.runtime.getBackgroundPage((backgroundWindow) => {
+        updateRestrooms(backgroundWindow);
+        updateMilk(backgroundWindow);
+    });
 };
 
 window.updateRestrooms = (windowObj) => {
@@ -155,6 +158,11 @@ window.updateRestrooms = (windowObj) => {
     Object.keys(restrooms).forEach(restroomId => {
         setRestroomStatus(restroomId, restrooms[restroomId]);
     });
+};
+
+window.updateMilk = (window) => {
+    const { milk } = window.context;
+    setMilkStatus(milk);
 };
 
 const DOMContentLoadedCallback = () => {
