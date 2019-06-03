@@ -1,10 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Give a Shit Extension</title>
-</head>
-<body>
 
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 400px;
+            height: 100%;
+            margin: 0;
+            font-family: 'sans-serif', sans-serif;
+        }
+
+        .tab-container {
+            background-color: rgba(49, 240, 129);
+            padding: 3%;
+        }
+
+        .tab-menu ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        .tab-menu ul li {
+            display: inline-block;
+        }
+
+        .tab-menu ul li a {
+            text-decoration: none;
+            color: rgba(0, 0, 0, 0.4);
+            background-color: #b4cbc4;
+            padding: 7px 25px;
+            border-radius: 4px;
+        }
+
+        .tab-menu ul li a.active-a {
+            background-color: #588d7d;
+            color: #ffffff;
+        }
+
+        .tab {
+            display: none;
+        }
+
+        .tab p {
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .tab-active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tab-container">
+        <p id="contextP">
+asdas
+        </p>
+        <div class="tab-menu">
+            <ul>
+                <li><a href="#" class="tab-a active-a" data-id="tab1">Eat</a></li>
+                <li><a href="#" class="tab-a" data-id="tab2">Restroom</a></li>
+                <li><a href="#" class="tab-a" data-id="tab3">Milk</a></li>
+            </ul>
+        </div>
+        <div class="tab tab-active" data-id="tab1">
+            <p>Eat</p>
+        </div>
+
+        <div class="tab " data-id="tab2">
+            <p>Restroom</p>
+        </div>
+        <div class="tab " data-id="tab3">
+            <p>Milk</p>
+        </div>
+    </div>
+    <script src="popup.js"></script>
 </body>
+
 </html>
