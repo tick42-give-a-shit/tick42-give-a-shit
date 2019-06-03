@@ -1,0 +1,12 @@
+{
+  "name": "Give a Shit Glue Extension",
+  "version": "1.0",
+  "description": "Build an Extension!",
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "manifest_version": 2
+}
