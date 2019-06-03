@@ -7,7 +7,7 @@ const domContentLoadedCallback = () => {
         return urlElements[urlElements.length - 1];
     };
 
-    chrome.runtime.getBackgroundPage((backgroundWindow) => {
+    chrome.extension.getBackgroundPage((backgroundWindow) => {
         let orderId = backgroundWindow.orderId;
 
         backgroundWindow.glue.contexts.subscribe(gotContext, (data, delta, removed, unbsub) => {
