@@ -17,7 +17,6 @@ const domContentLoadedCallback = () => {
         return urlElements[urlElements.length - 1];
     };
 
-    // isnt it for chrome storage ?
     window.addEventListener("storage", (key, oldValue, newValue, url, storageArea) => {
         if (storageArea === "sessionStorage") {
             return;
