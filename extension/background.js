@@ -68,8 +68,6 @@ chrome.runtime.onInstalled.addListener(() => {
 
 
 chrome.runtime.onStartup.addListener(() => {
-
-
     // message to popup on change of context
 });
 
@@ -91,18 +89,18 @@ const trySeedInitialState = () => {
         if (!data.eats) {
             window.glue.contexts.update(gotContext, {
                 eats: {
-                    takeaway: [],
-                    foodpanda: []
+                    takeaway: {},
+                    foodpanda: {}
                 }
             });
         }
         if (!data.restrooms) {
             window.glue.contexts.update(gotContext, {
                 restrooms: {
-                    ["2MLEFT"]: false,
-                    ["2MRIGHT"]: false,
-                    ["2FLEFT"]: false,
-                    ["2FRIGHT"]: false,
+                    ["2MLEFT"]: undefined,
+                    ["2MRIGHT"]: undefined,
+                    ["2FLEFT"]: undefined,
+                    ["2FRIGHT"]: undefined,
                     ["3MLEFT"]: false,
                     ["3MRIGHT"]: false,
                     ["3FLEFT"]: false,

@@ -64,6 +64,11 @@ const setRestroomStatus = (id, status) => {
 
 const orderOnClick = (order) => {
     // TODO
+    const { restaurant, platform } = order;
+
+    chrome.tabs.create({ url }, (tab) => {
+
+    })
 };
 
 const cellValuesToOrder = (cellValues) => ({
@@ -138,11 +143,6 @@ const attachOrdersTableHeadersOnClicks = () => {
     for (const [index, headerElement] of headerElements.entries()) {
         headerElement.onclick = () => sortTable(index);
     }
-};
-
-
-const mapContextToRestroomIds = (restroom) => {
-    return restroom
 };
 
 const getInfoFromBackgoundJs = () => {
