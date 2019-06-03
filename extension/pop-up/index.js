@@ -75,6 +75,11 @@ const cellValuesToOrder = (cellValues) => ({
 
 const populateOrdersElement = (orders) => {
     const ordersElement = document.getElementById('orders');
+    Array.from(ordersElement.children[0].children).forEach((tr, i) => {
+        if (i > 0) {
+            tr.remove();
+        }
+    });
 
     for (const { restaurant, platform, name, time } of orders) {
         const orderRow = ordersElement.insertRow(1);
