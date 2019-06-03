@@ -147,7 +147,7 @@ void loop() {
           "lifetime": "retained"
       });
     */
-    data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"test\",\"lifetime\":\"retained\"}");
+    data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"milk\",\"lifetime\":\"retained\"}");
     data.replace("#peerId#", peerId);
     webSocketClient.sendData(data);
     do {
