@@ -210,6 +210,30 @@ window.updateEats = (window) => {
     populateOrdersElement(orders);
 };
 
+const attachGlue42TabGroupOnClick = () => {
+    const glue42TabGroupElement = document.getElementById('glue42-tab-group');
+    glue42TabGroupElement.onclick = () => {
+        chrome.tabs.query({ currentWindow: true }, (tabs) => {
+            const tabUrlsAndTitlesToOpen = [];
+            tabs.forEach(({ url, title }) => {
+                if (!url.startsWith('chrome://')) {
+                    tabUrlsAndTitlesToOpen.push({ url, title });
+                }
+            });
+            const tabGroupId = (+new Date()).toString();
+            chrome.runtime.sendMessage({
+                type: 'T42WndCreate',
+                windows: tabUrlsAndTitlesToOpen.map(({ url, title }, index) => ({
+                    name: `${tabGroupId}-${index}`,
+                    url,
+                    title,
+                    mode: 'tab',
+                    tabGroupId
+                }))
+            });
+        });
+    };
+};
 // chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
 //     console.log("opaa", response)
 //     machineId = response;
@@ -241,6 +265,7 @@ const DOMContentLoadedCallback = () => {
     // ];
     // populateOrdersElement(mockOrders);
     attachOrdersTableHeadersOnClicks();
+    attachGlue42TabGroupOnClick();
 };
 
 document.addEventListener('DOMContentLoaded', DOMContentLoadedCallback, false);
