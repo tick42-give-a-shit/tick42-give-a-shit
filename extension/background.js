@@ -1,10 +1,34 @@
-const GlueCore = require('./tick42-glue-core-4.3.7');
+const gotContext = "GOT_Extension"
+
 let credentials;
+
+
+const contextShape = {
+    restrooms: [
+        {
+            floor: 2,
+            side: "left",
+            gender: "m"
+        }
+    ],
+    milk: true,
+    eats: {
+        takeaway: [
+            {
+                initiator: "userId",
+                timeOfOrder: Date.now(),
+                cart: {
+                    ["userId"]: {}
+                }
+            }
+        ]
+    }
+};
 
 
 chrome.runtime.onInstalled.addListener(() => {
     // Ask for credentials
-    prompt("Tell us your name")
+    credentials = prompt("Tell us your name")
     // popup --> it returns credentials
 });
 
@@ -20,7 +44,15 @@ chrome.runtime.onStartup.addListener(() => {
     GlueCore(glueConfig)
         .then(glue => {
             window.glue = glue;
+            const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
 
+
+                const p = document.getElementById("contextP");
+                p.text = JSON.stringify(data)
+                // chrome.runtime.sendMessage({ greeting: "hello" }, (response) => {
+                //     console.log(response.farewell);
+                // });
+            });
 
         });
 
