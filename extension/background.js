@@ -27,12 +27,8 @@ const contextShape = {
 
 
 chrome.runtime.onInstalled.addListener(() => {
-    // Ask for credentials
     username = prompt('Tell us your name');
-    // popup --> it returns credentials
 
-
-    // remote gateway ?
     const glueConfig = {
         agm: true,
         context: true,
@@ -57,12 +53,14 @@ chrome.runtime.onInstalled.addListener(() => {
             const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
                 window.context = data;
 
-                var views = chrome.extension.getViews({
+                const views = chrome.extension.getViews({
                     type: "popup"
                 });
 
+                console.log("updated", views);
                 views.forEach(view => {
                     view.updateRestrooms(window);
+                    view.updateMilk(window);
                 });
             });
         });
