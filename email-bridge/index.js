@@ -10,10 +10,13 @@ GlueCore({
     }
 }).then((glue) => {
     window.glue = glue;
+    return Glue({});
+}).then((localGlue) => {
+
     return Glue4Office({
-        application: 'Office Interop',
-        excel: false,		// enable Excel interop
-        word: false,		// enable Word interop
+        glue: localGlue,
+        excel: true,		// enable Excel interop
+        word: true,		// enable Word interop
         outlook: true	// disable Outlook interop
     })
 }).then((g4o) => {
