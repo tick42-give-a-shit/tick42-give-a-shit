@@ -147,7 +147,7 @@ void loop() {
           "lifetime": "retained"
       });
     */
-    data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"milk\",\"lifetime\":\"retained\"}");
+    data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"GOT_Extension\",\"lifetime\":\"retained\"}");
     data.replace("#peerId#", peerId);
     webSocketClient.sendData(data);
     do {
@@ -171,7 +171,7 @@ void loop() {
       });
     */
     data = 
-      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"state\":#state#}}";
+      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"milk\":#state#}}";
     data.replace("#peerId#", peerId);
     data.replace("#contextId#", contextId);
     data.replace("#state#", state ? "true" : "false");
