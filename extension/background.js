@@ -30,10 +30,7 @@ chrome.runtime.onInstalled.addListener(() => {
     // Ask for credentials
     credentials = prompt('Tell us your name')
     // popup --> it returns credentials
-});
 
-
-chrome.runtime.onStartup.addListener(() => {
     // remote gateway ?
     const glueConfig = {
         agm: true,
@@ -54,16 +51,22 @@ chrome.runtime.onStartup.addListener(() => {
             console.log("GLUE", glue);
             window.glue = glue;
             const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+                var views = chrome.extension.getViews({
+                    type: "popup"
+                });
 
-
-                const p = document.getElementById('contextP');
-                p.text = JSON.stringify(data)
-                // chrome.runtime.sendMessage({ greeting: 'hello' }, (response) => {
-                //     console.log(response.farewell);
-                // });
+                views.forEach(view => {
+                    const p = view.document.getElementById('contextP');
+                    p.innerHTML = JSON.stringify(data)
+                });
+                window.context = data;
             });
-
         });
+});
+
+
+chrome.runtime.onStartup.addListener(() => {
+
 
     // message to popup on change of context
 });
