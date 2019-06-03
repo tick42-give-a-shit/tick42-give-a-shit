@@ -46,7 +46,7 @@ chrome.runtime.onInstalled.addListener(() => {
     GlueCore(glueConfig)
         .then(glue => {
             window.glue = glue;
-
+            window.machineId = window.glue.agm.instance.machine;
             trySeedInitialState();
             tryMapUsernameToMachine();
 
@@ -77,8 +77,14 @@ chrome.runtime.onStartup.addListener(() => {
 
 const handleT42WndCreate = ({ windows }) => windows.forEach(({ name, url, title, mode, tabGroupId }) => glue.agm.invoke('T42.Wnd.Create', { name, url, title, mode, tabGroupId, top: 200, left: 200 }));
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
+        case "getEats":
+            sendResponse(window.context.eats);
+            break;
+        // case "getMachineId":
+        //     sendResponse(window.glue.agm.instance.machine);
+        //     break;
         case "startOrder":
             handleStartOrder(message);
             break;

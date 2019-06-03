@@ -35,22 +35,16 @@ const domContentLoadedCallback = () => {
         }
     });
 
-    chrome.runtime.getBackgroundPage((backgroundWindow) => {
-        window.glue = backgroundWindow.glue;
+    chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
+        const { takeaway } = response;
 
-        glue.contexts.subscribe(gotContext, (data, delta, _, unbsub) => {
-            const { takeaway } = data.eats;
-
-            orders = takeaway;
-        })
+        orders = takeaway;
     });
-    // document.createElement("SPAN").innerText = "";
 };
 
 
 const startOrder = () => {
     // take takeaway id !
-
     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unbsub) => {
         const restaurant = getCurrentRestaurant();
         const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage));
@@ -82,5 +76,8 @@ const onOrder = (machineId, products, orderId) => {
     })
 };
 
-
-document.addEventListener("DOMContentLoaded", domContentLoadedCallback);
+if (document.readyState !== 'loading') {
+    domContentLoadedCallback();
+} else {
+    document.addEventListener("DOMContentLoaded", domContentLoadedCallback);
+}
