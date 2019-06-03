@@ -100,37 +100,38 @@ const populateOrdersElement = (orders) => {
 };
 
 const sortTable = (columnId) => {
-    var rows, switching, i, x, y, shouldSwitch, dir;
-    let switchCount = 0;
     const ordersElement = document.getElementById('orders');
-    switching = true;
-    dir = 'asc';
+    let switchCount = 0;
+    let switching = true;
+    let shouldSwitch = false;
+    let direction = 'asc';
     while (switching) {
         switching = false;
-        rows = ordersElement.rows;
-        for (i = 1; i < (rows.length - 1); i++) {
+        const rows = ordersElement.rows;
+        let rowCounter = 1;
+        for (; rowCounter < rows.length - 1; rowCounter++) {
             shouldSwitch = false;
-            x = rows[i].getElementsByTagName('td')[columnId];
-            y = rows[i + 1].getElementsByTagName('td')[columnId];
-            if (dir === 'asc') {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            const cell1 = rows[rowCounter].getElementsByTagName('td')[columnId];
+            const cell2 = rows[rowCounter + 1].getElementsByTagName('td')[columnId];
+            if (direction === 'asc') {
+                if (cell1.innerHTML.toLowerCase() > cell2.innerHTML.toLowerCase()) {
                     shouldSwitch = true;
                     break;
                 }
-            } else if (dir === 'desc') {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            } else if (direction === 'desc') {
+                if (cell1.innerHTML.toLowerCase() < cell2.innerHTML.toLowerCase()) {
                     shouldSwitch = true;
                     break;
                 }
             }
         }
         if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            rows[rowCounter].parentNode.insertBefore(rows[rowCounter + 1], rows[rowCounter]);
             switching = true;
             switchCount++;
         } else {
-            if (switchCount === 0 && dir === 'asc') {
-                dir = 'desc';
+            if (switchCount === 0 && direction === 'asc') {
+                direction = 'desc';
                 switching = true;
             }
         }
