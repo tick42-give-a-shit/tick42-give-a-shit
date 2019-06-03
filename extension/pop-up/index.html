@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="tab-container">
+        <div class="tab-menu">
+            <ul>
+                <li><a href="#" class="tab-a active-a" data-id="tab1">Eat</a></li>
+                <li><a href="#" class="tab-a" data-id="tab2">Restroom</a></li>
+                <li><a href="#" class="tab-a" data-id="tab3">Milk</a></li>
+            </ul>
+        </div>
+        <div class="tab tab-active" data-id="tab1">
+            <table id="orders" cellspacing="0" cellpadding="0">
+                <tr>
+                    <th>Restaurant</th>
+                    <th>Platform</th>
+                    <th>Name</th>
+                    <th>Time</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="tab" data-id="tab2">
+            <table id="restrooms">
+            </table>
+        </div>
+        <div class="tab" data-id="tab3">
+            <img id="milk-status" src="../assets/no-milk.png">
+        </div>
+    </div>
+    <script src="index.js"></script>
+</body>
+
+</html>

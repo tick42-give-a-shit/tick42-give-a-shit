@@ -13,7 +13,7 @@
     "persistent": false
   },
   "browser_action": {
-    "default_popup": "popup.html",
+    "default_popup": "pop-up/index.html",
     "default_icon": "assets/tick42.png"
   }
 }

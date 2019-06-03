@@ -6,8 +6,8 @@ const contextShape = {
     restrooms: [
         {
             floor: 2,
-            side: 'LEFT',
             gender: 'M',
+            side: 'LEFT',
             taken: true
         }
     ],
