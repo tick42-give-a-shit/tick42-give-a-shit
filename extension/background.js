@@ -7,14 +7,9 @@ const contextShape = {
     users: {
         ["id"]: "username"
     },
-    restrooms: [
-        {
-            floor: 2,
-            gender: 'M',
-            side: 'LEFT',
-            taken: true
-        }
-    ],
+    restrooms: {
+        ["2MLEFT"]: false
+    },
     milk: true,
     eats: {
         takeaway: {
@@ -59,17 +54,16 @@ chrome.runtime.onInstalled.addListener(() => {
             trySeedInitialState();
             tryMapUsernameToMachine();
 
-            console.log("GLUE", glue);
             const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+                window.context = data;
+
                 var views = chrome.extension.getViews({
                     type: "popup"
                 });
 
                 views.forEach(view => {
-                    const p = view.document.getElementById('contextP');
-                    p.innerHTML = JSON.stringify(data)
+                    view.updateRestrooms(window);
                 });
-                window.context = data;
             });
         });
 });
@@ -106,32 +100,20 @@ const trySeedInitialState = () => {
         }
         if (!data.restrooms) {
             window.glue.contexts.update(gotContext, {
-                restrooms: [
-                    {
-                        floor: 2,
-                        side: 'LEFT',
-                        gender: 'M',
-                        taken: false
-                    },
-                    {
-                        floor: 2,
-                        side: 'RIGHT',
-                        gender: 'M',
-                        taken: false
-                    },
-                    {
-                        floor: 2,
-                        side: 'LEFT',
-                        gender: 'F',
-                        taken: false
-                    },
-                    {
-                        floor: 2,
-                        side: 'RIGHT',
-                        gender: 'F',
-                        taken: false
-                    }
-                ]
+                restrooms: {
+                    ["2MLEFT"]: false,
+                    ["2MRIGHT"]: false,
+                    ["2FLEFT"]: false,
+                    ["2FRIGHT"]: false,
+                    ["3MLEFT"]: false,
+                    ["3MRIGHT"]: false,
+                    ["3FLEFT"]: false,
+                    ["3FRIGHT"]: false,
+                    ["4MLEFT"]: false,
+                    ["4MRIGHT"]: false,
+                    ["4FLEFT"]: false,
+                    ["4FRIGHT"]: false,
+                }
             });
         }
         if (data.milk === undefined) {

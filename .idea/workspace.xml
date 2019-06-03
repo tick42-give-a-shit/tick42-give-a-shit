@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c95845b-3fdb-494d-98e1-067599184ce7" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/extension/contentScripts/orderTakeaway.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/extension/contentScripts/takeaway.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/extension/background.js" beforeDir="false" afterPath="$PROJECT_DIR$/extension/background.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/extension/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/extension/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extension/contentScripts/takeaway.js" beforeDir="false" afterPath="$PROJECT_DIR$/extension/contentScripts/takeaway.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extension/pop-up/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/extension/pop-up/index.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -20,27 +19,6 @@
   <component name="FileEditorManager">
     <leaf>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/extension/popup.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="749">
-              <caret line="77" column="22" selection-start-line="77" selection-start-column="17" selection-end-line="77" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/extension/popup.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="17" column="38" lean-forward="true" selection-start-line="17" selection-start-column="38" selection-end-line="17" selection-end-column="38" />
-              <folding>
-                <element signature="e#40#764#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/extension/manifest.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="378">
@@ -49,24 +27,50 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/extension/contentScripts/takeaway.js">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/extension/pop-up/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="56" column="50" selection-start-line="56" selection-start-column="50" selection-end-line="56" selection-end-column="50" />
+            <state relative-caret-position="512">
+              <caret line="152" column="44" lean-forward="true" selection-start-line="152" selection-start-column="44" selection-end-line="152" selection-end-column="44" />
+              <folding>
+                <element signature="e#2301#2506#0" />
+                <element signature="e#3158#3972#0" />
+                <element signature="e#4007#5031#0" />
+                <element signature="e#5081#5335#0" />
+                <element signature="e#5377#5782#0" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/extension/pop-up/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="360">
+              <caret line="20" column="39" lean-forward="true" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/extension/contentScripts/takeaway.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="414">
+              <caret line="35" column="110" selection-start-line="35" selection-start-column="110" selection-end-line="35" selection-end-column="110" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/extension/background.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="515">
-              <caret line="160" column="16" selection-start-line="160" selection-start-column="12" selection-end-line="160" selection-end-column="16" />
+            <state relative-caret-position="540">
+              <caret line="57" column="38" lean-forward="true" selection-start-line="57" selection-start-column="38" selection-end-line="57" selection-end-column="38" />
               <folding>
-                <element signature="e#1812#1972#0" />
-                <element signature="e#2224#2264#0" />
                 <element signature="e#1781#1990#0" />
+                <element signature="e#4093#4790#0" />
+                <element signature="e#4077#4085#0" />
+                <element signature="e#5391#5399#0" />
               </folding>
             </state>
           </provider>
@@ -75,8 +79,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/extension/contentScripts/orderTakeaway.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="12" selection-start-line="12" selection-end-line="13" />
+            <state relative-caret-position="72">
+              <caret line="4" column="30" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="30" />
             </state>
           </provider>
         </entry>
@@ -102,8 +106,9 @@
         <option value="$PROJECT_DIR$/extension/popup.js" />
         <option value="$PROJECT_DIR$/extension/manifest.json" />
         <option value="$PROJECT_DIR$/extension/contentScripts/orderTakeaway.js" />
-        <option value="$PROJECT_DIR$/extension/background.js" />
         <option value="$PROJECT_DIR$/extension/contentScripts/takeaway.js" />
+        <option value="$PROJECT_DIR$/extension/background.js" />
+        <option value="$PROJECT_DIR$/extension/pop-up/index.js" />
       </list>
     </option>
   </component>
@@ -135,6 +140,12 @@
               <item name="tick42-give-a-shit" type="462c0819:PsiDirectoryNode" />
               <item name="extension" type="462c0819:PsiDirectoryNode" />
               <item name="contentScripts" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tick42-give-a-shit" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tick42-give-a-shit" type="462c0819:PsiDirectoryNode" />
+              <item name="extension" type="462c0819:PsiDirectoryNode" />
+              <item name="pop-up" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -171,12 +182,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1559551878519</updated>
-      <workItem from="1559551880732" duration="16144000" />
+      <workItem from="1559551880732" duration="20509000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="16144000" />
+    <option name="totallyTimeSpent" value="20509000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -205,18 +216,6 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/extension/popup.js</url>
-          <line>2</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/extension/tick42-glue-core-4.3.7.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -239,6 +238,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/extension/contentScripts/takeaway.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="35" column="110" selection-start-line="35" selection-start-column="110" selection-end-line="35" selection-end-column="110" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/extension/popup.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
+          <folding>
+            <element signature="e#40#764#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/extension/manifest.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
@@ -246,39 +262,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/extension/popup.js">
+    <entry file="file://$PROJECT_DIR$/extension/contentScripts/orderTakeaway.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
-          <caret line="17" column="38" lean-forward="true" selection-start-line="17" selection-start-column="38" selection-end-line="17" selection-end-column="38" />
-          <folding>
-            <element signature="e#40#764#0" />
-          </folding>
+          <caret line="4" column="30" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="30" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/extension/contentScripts/orderTakeaway.js">
+    <entry file="file://$PROJECT_DIR$/extension/pop-up/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" selection-start-line="12" selection-end-line="13" />
+        <state relative-caret-position="360">
+          <caret line="20" column="39" lean-forward="true" selection-start-line="20" selection-start-column="39" selection-end-line="20" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/extension/pop-up/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="512">
+          <caret line="152" column="44" lean-forward="true" selection-start-line="152" selection-start-column="44" selection-end-line="152" selection-end-column="44" />
+          <folding>
+            <element signature="e#2301#2506#0" />
+            <element signature="e#3158#3972#0" />
+            <element signature="e#4007#5031#0" />
+            <element signature="e#5081#5335#0" />
+            <element signature="e#5377#5782#0" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/extension/background.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="515">
-          <caret line="160" column="16" selection-start-line="160" selection-start-column="12" selection-end-line="160" selection-end-column="16" />
+        <state relative-caret-position="540">
+          <caret line="57" column="38" lean-forward="true" selection-start-line="57" selection-start-column="38" selection-end-line="57" selection-end-column="38" />
           <folding>
-            <element signature="e#1812#1972#0" />
-            <element signature="e#2224#2264#0" />
             <element signature="e#1781#1990#0" />
+            <element signature="e#4093#4790#0" />
+            <element signature="e#4077#4085#0" />
+            <element signature="e#5391#5399#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/extension/contentScripts/takeaway.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="56" column="50" selection-start-line="56" selection-start-column="50" selection-end-line="56" selection-end-column="50" />
         </state>
       </provider>
     </entry>
