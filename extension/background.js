@@ -57,8 +57,9 @@ chrome.runtime.onInstalled.addListener(() => {
                     type: "popup"
                 });
 
-                console.log("updated", views);
+                console.log("updated", views, window.context);
                 views.forEach(view => {
+                    view.updateEats(window);
                     view.updateRestrooms(window);
                     view.updateMilk(window);
                 });
