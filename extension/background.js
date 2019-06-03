@@ -76,8 +76,11 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
+        case "getEats":
+            sendResponse(window.context.eats);
+            break;
         case "startOrder":
             handleStartOrder(message);
             break;
