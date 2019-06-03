@@ -2,26 +2,19 @@
 <html lang="en">
 
 <head>
-    <title>Bootstrap Example</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             width: 400px;
             height: 100%;
             margin: 0;
-            padding: 0;
-            background-color: #c7eae0;
             font-family: 'sans-serif', sans-serif;
         }
 
         .tab-container {
-            background-color: #31f081;
-            padding: 1%;
-            border-radius: 4px;
+            background-color: rgba(49, 240, 129);
+            padding: 3%;
         }
-
-        .tab-menu {}
 
         .tab-menu ul {
             margin: 0;
@@ -29,7 +22,6 @@
         }
 
         .tab-menu ul li {
-            list-style-type: none;
             display: inline-block;
         }
 
@@ -50,69 +42,37 @@
             display: none;
         }
 
-        .tab h2 {
-            color: rgba(0, 0, 0, .7);
-        }
-
         .tab p {
             color: rgba(0, 0, 0, 0.6);
-            text-align: justify;
         }
 
         .tab-active {
             display: block;
         }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 </head>
 
 <body>
     <div class="tab-container">
         <div class="tab-menu">
             <ul>
-                <li><a href="#" class="tab-a active-a" data-id="tab1">TAB-1</a></li>
-                <li><a href="#" class="tab-a" data-id="tab2">TAB-2</a></li>
-                <li><a href="#" class="tab-a" data-id="tab3">TAB-3</a></li>
+                <li><a href="#" class="tab-a active-a" data-id="tab1">Eat</a></li>
+                <li><a href="#" class="tab-a" data-id="tab2">Restroom</a></li>
+                <li><a href="#" class="tab-a" data-id="tab3">Milk</a></li>
             </ul>
         </div>
-        <!--end of tab-menu-->
         <div class="tab tab-active" data-id="tab1">
-            <h2>heading of tab one</h2>
-            <p>Content of tab one</p>
-
+            <p>Eat</p>
         </div>
-        <!--end of tab one-->
 
         <div class="tab " data-id="tab2">
-            <h2>heading of tab two</h2>
-            <p>Content of tab two</p>
+            <p>Restroom</p>
         </div>
-        <!--end of tab two-->
         <div class="tab " data-id="tab3">
-            <h2>heading of tab three</h2>
-            <p>Content of tab three</p>
+            <p>Milk</p>
         </div>
-        <!--end of tab three-->
     </div>
-    <!--end of container-->
-
-    <script>
-        const DOMContentLoadedCallback = () => {
-            const tabAElements = document.getElementsByClassName('tab-a');
-            for (tabAElement of tabAElements) {
-                tabAElement.addEventListener('click', (e) => {
-                    const activeTab = document.getElementsByClassName('active-a')[0];
-                    const activeTabContent = document.getElementsByClassName('tab-active')[0];
-                    activeTab.classList.remove('active-a');
-                    activeTabContent.classList.remove('tab-active');
-                    e.target.classList.add('active-a');
-                    document.querySelector(`.tab[data-id='${e.target.getAttribute('data-id')}']`).classList.add('tab-active');
-                });
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', DOMContentLoadedCallback, false);
-    </script>
+    <script src="popup.js"></script>
 </body>
 
 </html>

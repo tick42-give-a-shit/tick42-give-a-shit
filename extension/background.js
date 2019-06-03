@@ -1,23 +1,24 @@
 const gotContext = "GOT_Extension";
 let credentials;
 
-
 const contextShape = {
     restrooms: [
         {
             floor: 2,
-            side: "left",
-            gender: "m"
+            side: 'LEFT',
+            gender: 'M',
+            taken: true
         }
     ],
     milk: true,
     eats: {
         takeaway: [
             {
-                initiator: "userId",
-                timeOfOrder: Date.now(),
+                initiator: 'userId',
+                restaurant: '',
+                orderTime: Date.now(),
                 cart: {
-                    ["userId"]: {}
+                    ['userId']: {}
                 }
             }
         ]
@@ -27,7 +28,7 @@ const contextShape = {
 
 chrome.runtime.onInstalled.addListener(() => {
     // Ask for credentials
-    credentials = prompt("Tell us your name")
+    credentials = prompt('Tell us your name')
     // popup --> it returns credentials
 });
 
@@ -55,9 +56,9 @@ chrome.runtime.onStartup.addListener(() => {
             const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
 
 
-                const p = document.getElementById("contextP");
+                const p = document.getElementById('contextP');
                 p.text = JSON.stringify(data)
-                // chrome.runtime.sendMessage({ greeting: "hello" }, (response) => {
+                // chrome.runtime.sendMessage({ greeting: 'hello' }, (response) => {
                 //     console.log(response.farewell);
                 // });
             });
@@ -66,5 +67,3 @@ chrome.runtime.onStartup.addListener(() => {
 
     // message to popup on change of context
 });
-
-
