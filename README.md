@@ -13,14 +13,9 @@ const contextShape = {
     users: {
         ["id"]: "username"
     },
-    restrooms: [
-        {
-            floor: 2,
-            side: 'LEFT',
-            gender: 'M',
-            taken: true
-        }
-    ],
+    restrooms: {
+        ["2MLEFT"]: false
+    },
     milk: true,
     eats: {
         takeaway: {
