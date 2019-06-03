@@ -57,10 +57,11 @@ chrome.runtime.onInstalled.addListener(() => {
             const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
                 window.context = data;
 
-                var views = chrome.extension.getViews({
+                const views = chrome.extension.getViews({
                     type: "popup"
                 });
 
+                console.log("updated", views);
                 views.forEach(view => {
                     view.updateRestrooms(window);
                 });
