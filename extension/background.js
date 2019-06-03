@@ -1,7 +1,12 @@
+// KNOWN bug: when two orders happen at the same time one of them might get overriden. Solution: design the context shape to be one level only
+
 const gotContext = "GOT_Extension";
-let credentials;
+let username;
 
 const contextShape = {
+    users: {
+        ["id"]: "username"
+    },
     restrooms: [
         {
             floor: 2,
@@ -12,31 +17,32 @@ const contextShape = {
     ],
     milk: true,
     eats: {
-        takeaway: [
-            {
+        takeaway: {
+            ["orderId"]: {
                 initiator: 'userId',
                 restaurant: '',
                 orderTime: Date.now(),
                 cart: {
-                    ['userId']: {}
+                    ['userId']: []
                 }
             }
-        ]
+        }
     }
 };
 
 
 chrome.runtime.onInstalled.addListener(() => {
     // Ask for credentials
-    credentials = prompt('Tell us your name')
+    username = prompt('Tell us your name');
     // popup --> it returns credentials
+
 
     // remote gateway ?
     const glueConfig = {
         agm: true,
         context: true,
         auth: {
-            username: "Tick42_GOT",
+            username: "tick42_got",
             password: "glue_extension"
         },
         gateway: {
@@ -48,8 +54,12 @@ chrome.runtime.onInstalled.addListener(() => {
 
     GlueCore(glueConfig)
         .then(glue => {
-            console.log("GLUE", glue);
             window.glue = glue;
+
+            trySeedInitialState();
+            tryMapUsernameToMachine();
+
+            console.log("GLUE", glue);
             const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
                 var views = chrome.extension.getViews({
                     type: "popup"
@@ -70,3 +80,140 @@ chrome.runtime.onStartup.addListener(() => {
 
     // message to popup on change of context
 });
+
+
+chrome.runtime.onMessage.addListener((message) => {
+    switch (message.type) {
+        case "startOrder":
+            handleStartOrder(message);
+            break;
+        case "onOrder":
+            handleOrder(message);
+            break;
+    }
+});
+
+
+const trySeedInitialState = () => {
+    window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+        if (!data.eats) {
+            window.glue.contexts.update(gotContext, {
+                eats: {
+                    takeaway: [],
+                    foodpanda: []
+                }
+            });
+        }
+        if (!data.restrooms) {
+            window.glue.contexts.update(gotContext, {
+                restrooms: [
+                    {
+                        floor: 2,
+                        side: 'LEFT',
+                        gender: 'M',
+                        taken: false
+                    },
+                    {
+                        floor: 2,
+                        side: 'RIGHT',
+                        gender: 'M',
+                        taken: false
+                    },
+                    {
+                        floor: 2,
+                        side: 'LEFT',
+                        gender: 'F',
+                        taken: false
+                    },
+                    {
+                        floor: 2,
+                        side: 'RIGHT',
+                        gender: 'F',
+                        taken: false
+                    }
+                ]
+            });
+        }
+        if (data.milk === undefined) {
+            window.glue.contexts.update(gotContext, {
+                milk: true
+            });
+        }
+    });
+};
+
+const tryMapUsernameToMachine = () => {
+    window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+        const isMyMachineRegisted = data.users && data.users[username];
+
+        if (!isMyMachineRegisted) {
+            window.glue.contexts.update(gotContext, {
+                users: {
+                    [username]: window.glue.agm.instance.machine
+                }
+            });
+        }
+        unsub();
+    });
+};
+
+const handleStartOrder = (message) => {
+    const { site, orderId, machineId, products, orderTime, restaurant } = message;
+
+    switch (site) {
+        case "takeaway":
+        case "foodpanda":
+            glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+                const currentState = data;
+
+                currentState.eats[site][orderId] = {
+                    initiator: machineId,
+                    restaurant,
+                    orderTime,
+                    cart: {
+                        [machineId]: products
+                    }
+                };
+
+                window.glue.contexts.update(gotContext, currentState);
+
+                unsub();
+            });
+            break;
+    }
+};
+
+const handleOrder = (message) => {
+    const { site, orderId, machineId, products, } = message;
+
+    switch (site) {
+        case "takeaway":
+        case "foodpanda":
+            glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+                const currentState = data;
+
+                const currentProducts = currentState.eats[site][orderId].cart;
+                currentProducts[machineId] = products;
+
+                window.glue.contexts.update(gotContext, currentState);
+
+                unsub();
+            });
+            break;
+    }
+};
+
+const executeOrder = (message) => {
+    const { restaurant, orderId, site, machineId, products, } = message;
+
+    const url = "https://www.takeaway.com/bg/" + "checkout-order-" + restaurant;
+
+    window.orderId = orderId;
+
+    chrome.tabs.create({ url }, (tab) => {
+        chrome.tabs.executeScript(tab.id, {
+            file: 'contentScripts/orderTakeaway.js'
+        })
+    });
+
+};
