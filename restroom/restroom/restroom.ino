@@ -1,10 +1,13 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
+#include <ArduinoJson.h>
 
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 
 const int LED_PIN = 5;
+
+int state = 1;
 
 WiFiClient client;
 WebSocketClient webSocketClient;
@@ -63,6 +66,16 @@ void morse(String str) {
   }
 }
 
+String getJsonField(String json, String field) {
+  char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
+  char dest[200];
+  int len = strstr(where, "\"") - where;
+  strncpy(dest, where, len);
+  dest[len] = '\0';
+  String value = String(dest);
+  return String(value);
+}
+
 void loop() {
 
   if (WiFi.status() == WL_CONNECTED) {
@@ -83,7 +96,6 @@ void loop() {
     morse(".  .  .  ");
 
     String data;
-    webSocketClient.getData(data);
     /*
     JSON.stringify(
         {
@@ -100,10 +112,71 @@ void loop() {
             },
         });
     */
+
     data = String("{\"type\":\"hello\",\"request_id\":\"0\",\"domain\":\"global\",\"identity\":{\"application\":\"tick42-got-sensor\"},\"authentication\":{\"method\":\"secret\",\"login\":\"tick42_got\",\"secret\":\"secret\"}}");
     webSocketClient.sendData(data);
-    delay(2000);
-  
+    do {
+      delay(5000);
+      webSocketClient.getData(data);
+      morse("...  ...  ...  ");
+    }
+    while (!data.length());
+
+    String peerId = getJsonField(data, "peer_id");
+    /*StaticJsonDocument<500> jsonBuffer1;
+    DeserializationError error1 = deserializeJson(jsonBuffer1, data);
+    if (error1) {
+      webSocketClient.sendData(error1.c_str());
+      return;
+    }*/
+
+    /*String peerId = String((const char*)jsonBuffer1["peer_id"]);
+    //String token = root["access_token"];
+    return;*/
+
+    /*
+    JSON.stringify(
+        {
+          "domain": "global",
+          "type": "create-context",
+          "peer_id": peerId,
+          "request_id": "1",
+          "name": "test",
+          "lifetime": "retained"
+      });
+    */
+    data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"test\",\"lifetime\":\"retained\"}");
+    data.replace("#peerId#", peerId);
+    webSocketClient.sendData(data);
+    do {
+      delay(5000);
+      webSocketClient.getData(data);
+      morse("...  ...  ...  ");
+    }
+    while (!data.length());
+
+    String contextId = getJsonField(data, "context_id");
+    
+    /*
+    JSON.stringify(
+      {
+          "domain": "global",
+          "type": "update-context",
+          "request_id": "3",
+          "peer_id": "peerId",
+          "context_id": "contextId",
+          "delta": { state: "true" }
+      });
+    */
+    data = 
+      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"state\":#state#}}";
+    data.replace("#peerId#", peerId);
+    data.replace("#contextId#", contextId);
+    data.replace("#state#", state ? "true" : "false");
+    state ^= 1;
+    webSocketClient.sendData(data);
+    delay(5000);
+
   }
     /*String url = "/";
 
