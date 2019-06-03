@@ -1,7 +1,6 @@
 // think of shared place for this constant
 const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
-
 let orders = {};
 
 const getCurrentRestaurant = (currUrl = window.location.href) => {
