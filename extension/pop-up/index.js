@@ -93,7 +93,7 @@ const populateOrdersElement = (orders) => {
         }
     });
 
-    for (const { restaurant, platform, name, time } of orders) {
+    for (const { restaurant, platform, name, time, isInitiator } of orders) {
         const orderRow = ordersElement.insertRow(1);
         orderRow.onclick = function () {
             const cellValues = Array.from(this.children).map(cell => cell.innerHTML.replace(/<p>(.*?)<\/p>/, '$1'));
@@ -108,6 +108,12 @@ const populateOrdersElement = (orders) => {
         orderRowCell2.innerHTML = `<p>${name}</p>`;
         const orderRowCell3 = orderRow.insertCell(3);
         orderRowCell3.innerHTML = `<p>${time}</p>`;
+
+        console.log(isInitiator);
+        if (isInitiator) {
+            const orderRowCell4 = orderRow.insertCell(4);
+            orderRowCell4.innerHTML = `<button>Order Now</button>`;
+        }
     }
 };
 
@@ -160,6 +166,10 @@ const attachOrdersTableHeadersOnClicks = () => {
 
 const getInfoFromBackgroundScript = () => {
     chrome.runtime.getBackgroundPage((backgroundWindow) => {
+        if (!machineId) {
+            machineId = backgroundWindow.machineId;
+        }
+
         updateEats(backgroundWindow);
         updateRestrooms(backgroundWindow);
         updateMilk(backgroundWindow);
@@ -186,6 +196,7 @@ window.updateEats = (window) => {
         const ordersMap = eats[platform];
         Object.keys(ordersMap).forEach((orderId) => {
             const { restaurant, orderTime, initiator } = ordersMap[orderId];
+            console.log("asdadsadsaas", (machineId === initiator), ordersMap[orderId], machineId, initiator);
             orders.push({
                 restaurant,
                 platform,
@@ -199,9 +210,10 @@ window.updateEats = (window) => {
     populateOrdersElement(orders);
 };
 
-chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
-    machineId = response;
-});
+// chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
+//     console.log("opaa", response)
+//     machineId = response;
+// });
 
 const DOMContentLoadedCallback = () => {
     getInfoFromBackgroundScript();
