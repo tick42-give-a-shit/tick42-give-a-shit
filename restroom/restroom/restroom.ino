@@ -78,16 +78,18 @@ String getJsonField(String json, String field) {
 
 void loop() {
 
+  String host = "35.242.253.103";
+  // String host = "192.168.1.201";
   if (WiFi.status() == WL_CONNECTED) {
 
-    if (!client.connect("192.168.1.201", 5000)) {
+    if (!client.connect(host, 5000)) {
       morse("...  ...  ...  ");
       return;
     }
 
     // Handshake with the server
     webSocketClient.path = "/gw";
-    webSocketClient.host = "192.168.1.201";
+    webSocketClient.host = host;
     if (!webSocketClient.handshake(client)) {
       morse("..  ..  ..  ");
       return;
