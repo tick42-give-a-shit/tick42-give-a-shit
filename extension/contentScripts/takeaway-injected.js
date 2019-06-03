@@ -11,6 +11,23 @@ const getCurrentRestaurant = (currUrl = window.location.href) => {
 
 const domContentLoadedCallback = () => {
     // on click of basket
+
+    const injectDropdown = () => {
+        // This might actually work
+        const container = document.getElementsByClassName("cartbutton")[0];
+        if (!container) {
+            return;
+        }
+        const selectElement = document.createElement("SELECT");
+        const restaurantName = getCurrentRestaurant(window.location.href);
+
+        orders.filter(o => o.restaurant === restaurantName).forEach((o) => {
+            const optionElement = document.createElement("OPTION", { value: o.initiator });
+            selectElement.appendChild(optionElement);
+        });
+        container.innerHTML = selectElement;
+    }
+
     const getCurrentRestaurant = (currUrl) => {
         const urlElements = currUrl.split("/");
         return urlElements[urlElements.length - 1];
