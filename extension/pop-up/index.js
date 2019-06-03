@@ -20,10 +20,9 @@ const populateRestroomsElement = () => {
     const restroomsMapping = {
         floors: ['2', '3', '4'],
         genders: ['F', 'M'],
-        sides: ['LEFT', 'RIGHT']
+        sides: ['RIGHT', 'LEFT']
     };
 
-    let restroomId = 0;
     for (const floor of restroomsMapping.floors) {
         const floorRow = restroomsElement.insertRow(0);
         const floorRowCell0 = floorRow.insertCell(0);
@@ -234,6 +233,7 @@ const attachGlue42TabGroupOnClick = () => {
         });
     };
 };
+
 // chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
 //     console.log("opaa", response)
 //     machineId = response;
