@@ -50,26 +50,28 @@ chrome.runtime.onInstalled.addListener(() => {
             trySeedInitialState();
             tryMapUsernameToMachine();
 
-            const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-                window.context = data;
-
-                const views = chrome.extension.getViews({
-                    type: "popup"
-                });
-
-                console.log("updated", views);
-                views.forEach(view => {
-                    view.updateRestrooms(window);
-                    view.updateMilk(window);
-                });
-            });
+            handleContextChanged()
         });
 });
 
+const handleContextChanged = () => {
+    glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+        window.context = data;
+
+        const views = chrome.extension.getViews({
+            type: "popup"
+        });
+
+        console.log("updated", views, window.context);
+        views.forEach(view => {
+            view.updateEats(window);
+            view.updateRestrooms(window);
+            view.updateMilk(window);
+        });
+    });
+};
 
 chrome.runtime.onStartup.addListener(() => {
-
-
     // message to popup on change of context
 });
 
@@ -91,18 +93,18 @@ const trySeedInitialState = () => {
         if (!data.eats) {
             window.glue.contexts.update(gotContext, {
                 eats: {
-                    takeaway: [],
-                    foodpanda: []
+                    takeaway: {},
+                    foodpanda: {}
                 }
             });
         }
         if (!data.restrooms) {
             window.glue.contexts.update(gotContext, {
                 restrooms: {
-                    ["2MLEFT"]: false,
-                    ["2MRIGHT"]: false,
-                    ["2FLEFT"]: false,
-                    ["2FRIGHT"]: false,
+                    ["2MLEFT"]: undefined,
+                    ["2MRIGHT"]: undefined,
+                    ["2FLEFT"]: undefined,
+                    ["2FRIGHT"]: undefined,
                     ["3MLEFT"]: false,
                     ["3MRIGHT"]: false,
                     ["3FLEFT"]: false,

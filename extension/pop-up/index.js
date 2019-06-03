@@ -64,6 +64,16 @@ const setRestroomStatus = (id, status) => {
 
 const orderOnClick = (order) => {
     // TODO
+    const { restaurant, platform } = order;
+
+    let url;
+    switch (platform) {
+        case "takeaway":
+            url = `https://www.takeaway.com/bg/${restaurant}`;
+            break;
+    }
+
+    chrome.tabs.create({ url })
 };
 
 const cellValuesToOrder = (cellValues) => ({
@@ -146,13 +156,9 @@ const attachOrdersTableHeadersOnClicks = () => {
     }
 };
 
-
-const mapContextToRestroomIds = (restroom) => {
-    return restroom
-};
-
-const getInfoFromBackgoundJs = () => {
+const getInfoFromBackgroundScript = () => {
     chrome.runtime.getBackgroundPage((backgroundWindow) => {
+        updateEats(backgroundWindow);
         updateRestrooms(backgroundWindow);
         updateMilk(backgroundWindow);
     });
@@ -161,9 +167,7 @@ const getInfoFromBackgoundJs = () => {
 window.updateRestrooms = (windowObj) => {
     const { restrooms } = windowObj.context;
 
-    Object.keys(restrooms).forEach(restroomId => {
-        setRestroomStatus(restroomId, restrooms[restroomId]);
-    });
+    Object.keys(restrooms).forEach(restroomId => setRestroomStatus(restroomId, restrooms[restroomId]));
 };
 
 window.updateMilk = (window) => {
@@ -171,25 +175,52 @@ window.updateMilk = (window) => {
     setMilkStatus(milk);
 };
 
+window.updateEats = (window) => {
+    const { eats } = window.context;
+
+    const orders = [];
+
+    Object.keys(eats).forEach((platform) => {
+        const ordersMap = eats[platform];
+        Object.keys(ordersMap).forEach((orderId) => {
+            const { restaurant, orderTime, initiator } = ordersMap[orderId];
+            orders.push({
+                restaurant,
+                platform,
+                name: initiator,
+                time: orderTime,
+            })
+        });
+    });
+
+    populateOrdersElement(orders);
+};
+
 const DOMContentLoadedCallback = () => {
-    getInfoFromBackgoundJs();
+    getInfoFromBackgroundScript();
     attachTabOnClicks();
     populateRestroomsElement();
-    const mockOrders = [
-        {
-            restaurant: 'Boom Burgers',
-            platform: 'Takeaway',
-            name: 'Georgi Georgiev',
-            time: '12:30'
-        },
-        {
-            restaurant: 'Cactus',
-            platform: 'Foodpanda',
-            name: 'Svetozar Mateev',
-            time: '13:30'
-        }
-    ];
-    populateOrdersElement(mockOrders);
+    // const mockOrders = [
+    //     {
+    //         restaurant: 'Boom Burgers',
+    //         platform: 'Takeaway',
+    //         name: 'Georgi Georgiev',
+    //         time: '12:30'
+    //     },
+    //     {
+    //         restaurant: 'Cactus',
+    //         platform: 'Foodpanda',
+    //         name: 'Svetozar Mateev',
+    //         time: '13:30'
+    //     },
+    //     {
+    //         restaurant: 'Cactus',
+    //         platform: 'Takeaway',
+    //         name: 'Martin Donevski',
+    //         time: '13:30'
+    //     }
+    // ];
+    // populateOrdersElement(mockOrders);
     attachOrdersTableHeadersOnClicks();
 };
 
