@@ -50,31 +50,37 @@ chrome.runtime.onInstalled.addListener(() => {
             trySeedInitialState();
             tryMapUsernameToMachine();
 
-            const unsubPromise = glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-                window.context = data;
-
-                const views = chrome.extension.getViews({
-                    type: "popup"
-                });
-
-                console.log("updated", views, window.context);
-                views.forEach(view => {
-                    view.updateEats(window);
-                    view.updateRestrooms(window);
-                    view.updateMilk(window);
-                });
-            });
+            handleContextChanged()
         });
 });
 
+const handleContextChanged = () => {
+    glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+        window.context = data;
+
+        const views = chrome.extension.getViews({
+            type: "popup"
+        });
+
+        console.log("updated", views, window.context);
+        views.forEach(view => {
+            view.updateEats(window);
+            view.updateRestrooms(window);
+            view.updateMilk(window);
+        });
+    });
+};
 
 chrome.runtime.onStartup.addListener(() => {
     // message to popup on change of context
 });
 
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
+        case "getEats":
+            sendResponse(window.context.eats);
+            break;
         case "startOrder":
             handleStartOrder(message);
             break;

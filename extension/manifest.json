@@ -3,7 +3,8 @@
   "name": "Tick42 Extension",
   "version": "1.0",
   "permissions": [
-    "storage", "activeTab"
+    "storage",
+    "activeTab"
   ],
   "background": {
     "scripts": [
@@ -18,8 +19,15 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.takeaway.com/*"],
-      "js": ["contentScripts/takeaway.js"]
+      "matches": [
+        "https://www.takeaway.com/*"
+      ],
+      "css": [
+        "contentScripts/takeaway-injected.css"
+      ],
+      "js": [
+        "contentScripts/takeaway-injected.js"
+      ]
     }
   ]
 }
