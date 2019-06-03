@@ -1,3 +1,5 @@
+let machineId;
+
 const attachTabOnClicks = () => {
     const tabAElements = document.getElementsByClassName('tab-a');
     for (const tabAElement of tabAElements) {
@@ -189,12 +191,17 @@ window.updateEats = (window) => {
                 platform,
                 name: initiator,
                 time: orderTime,
+                isInitiator: (machineId === initiator)
             })
         });
     });
 
     populateOrdersElement(orders);
 };
+
+chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
+    machineId = response;
+});
 
 const DOMContentLoadedCallback = () => {
     getInfoFromBackgroundScript();

@@ -81,6 +81,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "getEats":
             sendResponse(window.context.eats);
             break;
+        case "getMachineId":
+            sendResponse(window.glue.agm.instance.machine);
+            break;
         case "startOrder":
             handleStartOrder(message);
             break;
