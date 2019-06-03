@@ -50,10 +50,10 @@ const setMilkStatus = (status) => {
 const setRestroomStatus = (id, status) => {
     const restroomElement = document.getElementById(id);
     switch (status) {
-        case 'available':
+        case true:
             restroomElement.style.fill = 'rgba(61, 193, 211, 1.0)';
             break;
-        case 'unavailable':
+        case false:
             restroomElement.style.fill = 'rgba(196, 69, 105,1.0)';
             break;
         default:
@@ -147,15 +147,23 @@ const mapContextToRestroomIds = (restroom) => {
 };
 
 const getInfoFromBackgoundJs = () => {
-    chrome.runtime.getBackgroundPage(updateRestrooms);
+    chrome.runtime.getBackgroundPage((backgroundWindow) => {
+        updateRestrooms(backgroundWindow);
+        updateMilk(backgroundWindow);
+    });
 };
 
-const updateRestrooms = (windowObj) => {
+window.updateRestrooms = (windowObj) => {
     const { restrooms } = windowObj.context;
 
     Object.keys(restrooms).forEach(restroomId => {
         setRestroomStatus(restroomId, restrooms[restroomId]);
     });
+};
+
+window.updateMilk = (window) => {
+    const { milk } = window.context;
+    setMilkStatus(milk);
 };
 
 const DOMContentLoadedCallback = () => {
