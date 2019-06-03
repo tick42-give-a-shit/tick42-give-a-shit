@@ -53,7 +53,7 @@ const startOrder = () => {
 
         const products = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId];
 
-        chrome.runtime.sentMessage({
+        chrome.runtime.sendMessage({
             type: "startOrder",
             site: "takeaway",
             orderId: takeawayOrderId,
@@ -67,7 +67,7 @@ const startOrder = () => {
 };
 
 const onOrder = (machineId, products, orderId) => {
-    chrome.runtime.sentMessage({
+    chrome.runtime.sendMessage({
         type: "onOrder",
         site: "takeaway",
         orderId,
