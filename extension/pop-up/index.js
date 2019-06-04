@@ -234,6 +234,21 @@ const attachGlue42TabGroupOnClick = () => {
     };
 };
 
+const setAirConditionerTemperature = (value) => {
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    airConditionerTemperatureElement.value = value;
+};
+
+const attachAirConditionerTemperatureListener = () => {
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    const airConditionerTemperatureElementInputCallback = (e) => {
+        if (e.type === 'input') {
+            console.log(e.target.value);
+        }
+    };
+    airConditionerTemperatureElement.addEventListener('input', airConditionerTemperatureElementInputCallback);
+};
+
 // chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
 //     console.log("opaa", response)
 //     machineId = response;
@@ -266,6 +281,7 @@ const DOMContentLoadedCallback = () => {
     // populateOrdersElement(mockOrders);
     attachOrdersTableHeadersOnClicks();
     attachGlue42TabGroupOnClick();
+    attachAirConditionerTemperatureListener();
 };
 
 document.addEventListener('DOMContentLoaded', DOMContentLoadedCallback, false);
