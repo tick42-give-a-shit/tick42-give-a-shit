@@ -93,7 +93,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "getEats":
             sendResponse(window.context.eats);
             break;
-
+        case "executeOrder":
+            executeOrder(message);
+            break;
+        case "getTakeawayCart":
+            sendResponse(window.context.eats.takeaway[window.nextToExecute].cart);
+            break;
         case "getOrdersForRestaurant":
             const { site, restaurant } = message;
             const ordersAsObjects = window.context.eats[site];
@@ -109,6 +114,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             orders.forEach(k => resultObject = { ...resultObject, [k]: ordersAsObjects[k] });
             sendResponse(resultObject);
             break;
+
         case "setAir":
             const { value } = message;
             window.glue.contexts.update(gotContext, { air: value })
@@ -267,8 +273,10 @@ const handleOrder = (message) => {
     }
 };
 
+window.nextToExecute = orderId;
+
 const executeOrder = (message) => {
-    const { restaurant, orderId, site, machineId, products, } = message;
+    const { restaurant, orderId } = message;
 
     const url = "https://www.takeaway.com/bg/" + "checkout-order-" + restaurant;
 

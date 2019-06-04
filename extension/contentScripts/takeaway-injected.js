@@ -142,12 +142,6 @@ const domContentLoadedCallback = () => {
             lastBasket = currentBasket;
         }, 1000);
     }, 1000);
-
-    // chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
-    //     const { takeaway } = response;
-
-    //     orders = takeaway;
-    // });
 };
 
 
