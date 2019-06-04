@@ -133,9 +133,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 const trySeedInitialState = () => {
     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+        console.log("TCL: trySeedInitialState -> data", data)
         if (!data.users) {
             window.glue.contexts.update(gotContext, {
-                users: []
+                users: {}
             });
         }
         if (!data.eats) {
@@ -194,22 +195,22 @@ const trySeedInitialState = () => {
 
 const saveUsername = () => {
     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-
-        console.log("data", data);
+        console.log("TCL: saveUsername -> data", data)
+        console.log("TCL: saveUsername -> JSON.stringify(data) === '{}'", JSON.stringify(data) === '{}')
         if (JSON.stringify(data) === '{}') {
+            console.log('returning');
             return;
         }
-        const currentUsers = JSON.parse(JSON.stringify([...data.users]));
 
-        if (currentUsers.includes(username)) {
+        if (Object.keys(data.users).includes(username)) {
             console.error("ALREDY TAKEN")
+            return;
         }
 
         window.glue.contexts.update(gotContext, {
-            users: [
-                ...currentUsers,
-                username
-            ]
+            users: {
+                [username]: username
+            }
         });
 
         unsub();
