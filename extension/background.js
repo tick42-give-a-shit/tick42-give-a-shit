@@ -4,9 +4,9 @@ const gotContext = "GOT_Extension";
 let username;
 
 const contextShape = {
-    users: {
-        ["id"]: "username"
-    },
+    users: [
+        "username"
+    ],
     restrooms: {
         ["2MLEFT"]: false
     },
@@ -47,9 +47,10 @@ chrome.runtime.onInstalled.addListener(() => {
     GlueCore(glueConfig)
         .then(glue => {
             window.glue = glue;
-            window.machineId = window.glue.agm.instance.machine;
+            window.machineId = username;
             trySeedInitialState();
-            tryMapUsernameToMachine();
+            // tryMapUsernameToMachine();
+            saveUsername();
 
             handleContextChanged()
         });
@@ -132,6 +133,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 const trySeedInitialState = () => {
     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+        if (!data.users) {
+            window.glue.contexts.update(gotContext, {
+                users: []
+            });
+        }
         if (!data.eats) {
             window.glue.contexts.update(gotContext, {
                 eats: {
@@ -171,17 +177,41 @@ const trySeedInitialState = () => {
     });
 };
 
-const tryMapUsernameToMachine = () => {
-    window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-        const isMyMachineRegisted = data.users && data.users[username];
+// const tryMapUsernameToMachine = () => {
+//     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+//         const isMyMachineRegisted = data.users && data.users[username];
+//
+//         if (!isMyMachineRegisted) {
+//             window.glue.contexts.update(gotContext, {
+//                 users: {
+//                     [username]: window.glue.agm.instance.machine
+//                 }
+//             });
+//         }
+//         unsub();
+//     });
+// };
 
-        if (!isMyMachineRegisted) {
-            window.glue.contexts.update(gotContext, {
-                users: {
-                    [username]: window.glue.agm.instance.machine
-                }
-            });
+const saveUsername = () => {
+    window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+
+        console.log("data", data);
+        if (JSON.stringify(data) === '{}') {
+            return;
         }
+        const currentUsers = JSON.parse(JSON.stringify([...data.users]));
+
+        if (currentUsers.includes(username)) {
+            console.error("ALREDY TAKEN")
+        }
+
+        window.glue.contexts.update(gotContext, {
+            users: [
+                ...currentUsers,
+                username
+            ]
+        });
+
         unsub();
     });
 };
@@ -189,7 +219,7 @@ const tryMapUsernameToMachine = () => {
 const handleStartOrder = (message) => {
     const { site, orderId, products, orderTime = Date.now(), restaurant } = message;
 
-    const machineId = window.glue.agm.instance.machine;
+    const machineId = username;
     console.log("Message", message)
     switch (site) {
         case "takeaway":
@@ -218,7 +248,7 @@ const handleStartOrder = (message) => {
 const handleOrder = (message) => {
     const { site, orderId, products, } = message;
     debugger;
-    const machineId = window.glue.agm.instance.machine;
+    const machineId = username;
 
     switch (site) {
         case "takeaway":
