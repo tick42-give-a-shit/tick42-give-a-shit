@@ -165,15 +165,19 @@ const tryMapUsernameToMachine = () => {
 };
 
 const handleStartOrder = (message) => {
-    const { site, orderId, machineId, products, orderTime, restaurant } = message;
+    const { site, orderId, products, orderTime = Date.now(), restaurant } = message;
 
+    const machineId = window.glue.agm.instance.machine;
+    console.log("Message", message)
     switch (site) {
         case "takeaway":
         case "foodpanda":
             glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-                const currentState = data;
+                unsub();
 
-                currentState.eats[site][orderId] = {
+                const newEats = JSON.parse(JSON.stringify({ ...data.eats }));
+
+                newEats [site][orderId] = {
                     initiator: machineId,
                     restaurant,
                     orderTime,
@@ -181,30 +185,30 @@ const handleStartOrder = (message) => {
                         [machineId]: products
                     }
                 };
+                console.log("currentState", newEats);
 
-                window.glue.contexts.update(gotContext, currentState);
-
-                unsub();
+                window.glue.contexts.update(gotContext, { eats: newEats });
             });
             break;
     }
 };
 
 const handleOrder = (message) => {
-    const { site, orderId, machineId, products, } = message;
+    const { site, orderId, products, } = message;
+
+    const machineId = window.glue.agm.instance.machine;
 
     switch (site) {
         case "takeaway":
         case "foodpanda":
             glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
+                unsub();
                 const currentState = data;
 
                 const currentProducts = currentState.eats[site][orderId].cart;
                 currentProducts[machineId] = products;
 
                 window.glue.contexts.update(gotContext, currentState);
-
-                unsub();
             });
             break;
     }
