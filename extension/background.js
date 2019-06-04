@@ -22,7 +22,8 @@ const contextShape = {
                 }
             }
         }
-    }
+    },
+    air: 20
 };
 
 
@@ -67,6 +68,7 @@ const handleContextChanged = () => {
             view.updateEats(window);
             view.updateRestrooms(window);
             view.updateMilk(window);
+            view.updateAirConditioner(window);
         });
     });
 };
@@ -95,7 +97,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const { site, restaurant } = message;
             const orders = Object.values(window.context.eats[site]).filter((o) => o.restaurant === restaurant);
             sendResponse(orders);
-
+            break;
+        case "setAir":
+            const { value } = message;
+            window.glue.contexts.update(gotContext, { air: value })
             break;
         // case "getMachineId":
         //     sendResponse(window.glue.agm.instance.machine);
@@ -146,6 +151,11 @@ const trySeedInitialState = () => {
                 milk: true
             });
         }
+        if (data.air === undefined) {
+            window.glue.contexts.update(gotContext, {
+                air: 20
+            });
+        }
     });
 };
 
@@ -177,7 +187,7 @@ const handleStartOrder = (message) => {
 
                 const newEats = JSON.parse(JSON.stringify({ ...data.eats }));
 
-                newEats [site][orderId] = {
+                newEats[site][orderId] = {
                     initiator: machineId,
                     restaurant,
                     orderTime,
