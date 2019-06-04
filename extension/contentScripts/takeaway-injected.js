@@ -30,14 +30,25 @@ const mockOrders = [
         time: '13:30'
     }
 ];
+// const mockOrders = [];
 
-const newDropdownContent = `
+let newDropdownContent;
+
+if (mockOrders.length > 0) {
+    newDropdownContent = `
 <nav>
   <ul class="drop-down closed">
     <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
     ${mockOrders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
   </ul>
 </nav>`;
+} else {
+    newDropdownContent = `
+<section class="cartbutton">
+  <div id="no-orders" class="cartbutton-button">There are no active orders (Tick42 Eats)</div>
+</section>`;
+}
+
 const newDropdown = document.createElement('div');
 newDropdown.innerHTML = newDropdownContent;
 const cartbuttonElement = document.getElementsByClassName('cartbutton')[0];
@@ -47,8 +58,8 @@ if (menuCartFixedElement) {
 }
 
 const newTick42EatsButtonContent = `
-<section class="cartbutton">
-	<a id="new-tick42-eats" class="cartbutton-button"><input id="time" type="time" value="12:30" required>New order (Tick42 Eats)</a>
+        <section class="cartbutton" >
+            <a id="new-tick42-eats" class="cartbutton-button"><input id="time" type="time" value="12:30" required>New order (Tick42 Eats)</a>
 </section>`;
 const newTick42EatsButton = document.createElement('div');
 newTick42EatsButton.innerHTML = newTick42EatsButtonContent;
