@@ -39,3 +39,17 @@ nav .drop-down li:first-child a:after {
   margin-left: -30px !important;
   margin-right: 5px !important;
 }
+
+#time {
+  margin-right: 16px !important;
+}
+
+#new-tick42-eats {
+  font-size: 16px !important;
+  background-color:rgba(120, 111, 166,1.0) !important;
+}
+
+#new-tick42-eats:hover {
+  font-size: 16px !important;
+  background-color: rgba(207, 106, 135,1.0) !important;
+}
