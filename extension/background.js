@@ -274,10 +274,10 @@ const handleOrder = (message) => {
     }
 };
 
-window.nextToExecute = orderId;
 
 const executeOrder = (message) => {
     const { restaurant, orderId } = message;
+    window.nextToExecute = orderId;
 
     const url = "https://www.takeaway.com/bg/" + "checkout-order-" + restaurant;
 
