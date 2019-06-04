@@ -18,26 +18,6 @@ const updateOrders = () => {
     });
 };
 
-// const mockOrders = [
-//     {
-//         restaurant: 'Boom Burgers',
-//         platform: 'Takeaway',
-//         name: 'Georgi Georgiev',
-//         time: '12:30'
-//     },
-//     {
-//         restaurant: 'Cactus',
-//         platform: 'Foodpanda',
-//         name: 'Svetozar Mateev',
-//         time: '13:30'
-//     },
-//     {
-//         restaurant: 'Cactus',
-//         platform: 'Takeaway',
-//         name: 'Martin Donevski',
-//         time: '13:30'
-//     }
-
 const updateDropdownOptions = () => {
     shouldInvoke = false;
     let newDropdownContent;

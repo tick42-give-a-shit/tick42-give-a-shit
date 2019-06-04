@@ -157,3 +157,11 @@ label {
 .floor {
   width: 40px;
 }
+
+.order-now {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(120, 111, 166, 1.0);
+  border: none;
+  border-radius: 4px;
+}
