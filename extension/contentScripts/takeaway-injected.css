@@ -1,0 +1,41 @@
+nav {
+  margin-top: 30px !important;
+}
+
+nav .drop-down {
+  list-style: none !important;
+  overflow: hidden !important;
+  background-color: rgba(120, 111, 166,1.0) !important;
+  border-radius: 3px !important;
+  font-family: 'sans-serif', sans-serif !important;
+  width: 348px !important;
+  margin: 0 auto !important;
+  text-align: center !important;
+  padding: 0 !important;
+  -webkit-transition: height 0.3s ease !important;
+          transition: height 0.3s ease !important;
+}
+
+nav .drop-down.closed {
+  height: 39px !important;
+}
+
+nav .drop-down li a {
+  display: block !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 600 !important;
+  padding: 10px !important;
+  background-color: rgba(120, 111, 166,1.0) !important;
+}
+
+nav .drop-down li a:hover {
+  cursor: pointer !important;
+  background-color: rgba(207, 106, 135,1.0) !important;
+}
+
+nav .drop-down li:first-child a:after {
+  content: "\25BC" !important;
+  float: right !important;
+  margin-left: -30px !important;
+  margin-right: 5px !important;
+}
