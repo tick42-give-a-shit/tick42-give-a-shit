@@ -92,15 +92,15 @@ const populateOrdersElement = (orders) => {
         }
     });
 
-    for (const { restaurant, platform, name, time, isInitiator } of orders) {
+    for (const { restaurant, platform, name, time, isInitiator, orderId } of orders) {
         const orderRow = ordersElement.insertRow(1);
         orderRow.onclick = function () {
             const cellValues = Array.from(this.children).map(cell => cell.innerHTML.replace(/<p>(.*?)<\/p>/, '$1'));
             const order = cellValuesToOrder(cellValues);
-            orderOnClick(order);
+            // orderOnClick(order);
         };
         const orderRowCell0 = orderRow.insertCell(0);
-        orderRowCell0.innerHTML = `<p>${restaurant}</p>`;
+        orderRowCell0.innerHTML = `<p id="${orderId}">${restaurant}</p>`;
         const orderRowCell1 = orderRow.insertCell(1);
         orderRowCell1.innerHTML = `<p>${platform}</p>`;
         const orderRowCell2 = orderRow.insertCell(2);
@@ -111,7 +111,14 @@ const populateOrdersElement = (orders) => {
         console.log(isInitiator);
         if (isInitiator) {
             const orderRowCell4 = orderRow.insertCell(4);
-            orderRowCell4.innerHTML = `<button class="order-now">Order Now</button>`;
+            orderRowCell4.innerHTML = `<button id=${time} class="order-now">Order Now</button>`;
+            const buttonOrderNow = document.getElementById(time.toString());
+            buttonOrderNow.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const targetId = event.target.parentElement.parentElement.children[0].children[0].id;
+                const targetInnerHtml = event.target.parentElement.parentElement.children[0].children[0].innerHTML;
+                executeOrder(targetInnerHtml, targetId);
+            });
         } else {
             const orderRowCell4 = orderRow.insertCell(4);
             orderRowCell4.innerHTML = '';
@@ -201,6 +208,7 @@ window.updateEats = (window) => {
             const { restaurant, orderTime, initiator } = ordersMap[orderId];
             console.log("asdadsadsaas", (machineId === initiator), ordersMap[orderId], machineId, initiator);
             orders.push({
+                orderId,
                 restaurant,
                 platform,
                 name: initiator,
@@ -266,7 +274,7 @@ const attachAirConditionerTemperatureListener = () => {
 // });
 
 const executeOrder = (restaurant, orderId) => {
-    chrome.runtime.sendMessage({ type: "executeOrder", restaurant, orderId })
+    chrome.runtime.sendMessage({ type: "executeOrder", restaurant, orderId });
 };
 
 const DOMContentLoadedCallback = () => {
