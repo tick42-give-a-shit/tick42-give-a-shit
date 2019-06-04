@@ -24,6 +24,13 @@ svg {
   fill: rgba(89, 98, 117, 1.0);
 }
 
+label {
+  text-align: right;
+  clear: both;
+  float:left;
+  margin-right:15px;
+}
+
 [data-id="tab4"] {
   margin-left: auto;
   margin-right: auto;
@@ -33,7 +40,7 @@ svg {
 [data-id="tab5"] {
   margin-left: auto;
   margin-right: auto;
-  width: 38%;
+  width: 53%;
 }
 
 .tab-container {
@@ -114,8 +121,9 @@ svg {
   background-color: rgba(207, 106, 135,1.0);
 }
 
-#air-conditioner-temperature {
-  margin-top: 20px;
+.available {
+  margin-top: 5px;
+  margin-bottom: 5px;
   font-size: 16px;
   width: 121px;
   background-color: rgba(120, 111, 166,1.0);
@@ -125,6 +133,27 @@ svg {
   color: rgba(255, 255, 255, 0.9);
 }
 
-#air-conditioner-temperature:focus {
+.available:focus {
   background-color: rgba(207, 106, 135,1.0);
+}
+
+.unavailable {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  width: 121px;
+  height: 18px;
+  background-color: rgba(89, 98, 117, 1.0);
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+#air-conditioners {
+  margin-top: 20px;
+}
+
+.floor {
+  width: 40px;
 }

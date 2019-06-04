@@ -6,8 +6,7 @@ const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 
 const int LED_PIN = 5;
-
-int state = 1;
+const int ANALOG_PIN = A0; // The only analog pin on the Thing
 
 WiFiClient client;
 WebSocketClient webSocketClient;
@@ -43,7 +42,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
   connectWiFi();
-
+  
 }
 
 void morse(String str) {
@@ -78,8 +77,8 @@ String getJsonField(String json, String field) {
 
 void loop() {
 
-  String host = "35.242.253.103";
-  // String host = "192.168.1.201";
+  char* host = "35.242.253.103";
+  //char* host = "192.168.1.201";
   if (WiFi.status() == WL_CONNECTED) {
 
     if (!client.connect(host, 5000)) {
@@ -170,14 +169,21 @@ void loop() {
           "delta": { state: "true" }
       });
     */
+    while (true) {
     data = 
-      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"milk\":#state#}}";
+      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"restrooms\":{\"3MLEFT\":#state#}}}}";
     data.replace("#peerId#", peerId);
     data.replace("#contextId#", contextId);
+
+    int mappedValue = (int)( 603.74 * pow(map(analogRead(ANALOG_PIN), 0, (1<<10)-1, 0, 5000)/1000.0, -1.16));
+    int state = mappedValue < 600;
+    //webSocketClient.sendData(String(mappedValue));
     data.replace("#state#", state ? "true" : "false");
-    state ^= 1;
+    digitalWrite(LED_PIN, state ? HIGH : LOW);
+ 
     webSocketClient.sendData(data);
-    delay(5000);
+    delay(2000);
+    }
 
   }
     /*String url = "/";

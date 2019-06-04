@@ -34,25 +34,34 @@ const updateOrders = () => {
 //         time: '13:30'
 //     }
 
-const updateUI = () => {
-    const newDropdownContent = `
+let newDropdownContent;
+
+if (mockOrders.length > 0) {
+    newDropdownContent = `
 <nav>
   <ul class="drop-down closed">
     <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
     ${orders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
   </ul>
 </nav>`;
-    const newDropdown = document.createElement('div');
-    newDropdown.innerHTML = newDropdownContent;
-    const cartbuttonElement = document.getElementsByClassName('cartbutton')[0];
-    const menuCartFixedElement = document.getElementsByClassName('menu-cart-fixed')[0];
-    if (menuCartFixedElement) {
-        menuCartFixedElement.insertBefore(newDropdown, cartbuttonElement);
-    }
-
-    const newTick42EatsButtonContent = `
+} else {
+    newDropdownContent = `
 <section class="cartbutton">
-	<a id="new-tick42-eats" class="cartbutton-button"><input id="time" type="time" value="12:30" required>New order (Tick42 Eats)</a>
+  <div id="no-orders" class="cartbutton-button">There are no active orders (Tick42 Eats)</div>
+</section>`;
+}
+
+const newDropdown = document.createElement('div');
+newDropdown.innerHTML = newDropdownContent;
+const cartbuttonElement = document.getElementsByClassName('cartbutton')[0];
+const menuCartFixedElement = document.getElementsByClassName('menu-cart-fixed')[0];
+if (menuCartFixedElement) {
+    menuCartFixedElement.insertBefore(newDropdown, cartbuttonElement);
+}
+
+const newTick42EatsButtonContent = `
+        <section class="cartbutton" >
+            <a id="new-tick42-eats" class="cartbutton-button"><input id="time" type="time" value="12:30" required>New order (Tick42 Eats)</a>
 </section>`;
     const newTick42EatsButton = document.createElement('div');
     newTick42EatsButton.innerHTML = newTick42EatsButtonContent;
@@ -94,7 +103,7 @@ const updateUI = () => {
             }, false);
         });
     }
-}
+
 
 const getCurrentRestaurant = (currUrl = window.location.href) => {
     const urlElements = currUrl.split("/");
