@@ -75,12 +75,27 @@ chrome.runtime.onStartup.addListener(() => {
     // message to popup on change of context
 });
 
-const handleT42WndCreate = ({ windows }) => windows.forEach(({ name, url, title, mode, tabGroupId }) => glue.agm.invoke('T42.Wnd.Create', { name, url, title, mode, tabGroupId, top: 200, left: 200 }));
+const handleT42WndCreate = ({ windows }) => windows.forEach(({ name, url, title, mode, tabGroupId }) => glue.agm.invoke('T42.Wnd.Create', {
+    name,
+    url,
+    title,
+    mode,
+    tabGroupId,
+    top: 200,
+    left: 200
+}));
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
         case "getEats":
             sendResponse(window.context.eats);
+            break;
+
+        case "getOrdersForRestaurant":
+            const { site, restaurant } = message;
+            const orders = Object.values(window.context.eats[site]).filter((o) => o.restaurant === restaurant);
+            sendResponse(orders);
+
             break;
         // case "getMachineId":
         //     sendResponse(window.glue.agm.instance.machine);

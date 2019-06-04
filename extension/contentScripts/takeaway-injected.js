@@ -1,34 +1,43 @@
 // think of shared place for this constant
 const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
-let orders = {};
+let orders = [];
 
-const mockOrders = [
-    {
-        restaurant: 'Boom Burgers',
-        platform: 'Takeaway',
-        name: 'Georgi Georgiev',
-        time: '12:30'
-    },
-    {
-        restaurant: 'Cactus',
-        platform: 'Foodpanda',
-        name: 'Svetozar Mateev',
-        time: '13:30'
-    },
-    {
-        restaurant: 'Cactus',
-        platform: 'Takeaway',
-        name: 'Martin Donevski',
-        time: '13:30'
-    }
-];
+const updateOrders = () => {
+    chrome.runtime.sendMessage({
+        type: "getOrdersForRestaurant",
+        site: "takeaway",
+        restaurant: getCurrentRestaurant()
+    }, (response) => {
+        orders = response || [];
+    });
+};
+
+// const mockOrders = [
+//     {
+//         restaurant: 'Boom Burgers',
+//         platform: 'Takeaway',
+//         name: 'Georgi Georgiev',
+//         time: '12:30'
+//     },
+//     {
+//         restaurant: 'Cactus',
+//         platform: 'Foodpanda',
+//         name: 'Svetozar Mateev',
+//         time: '13:30'
+//     },
+//     {
+//         restaurant: 'Cactus',
+//         platform: 'Takeaway',
+//         name: 'Martin Donevski',
+//         time: '13:30'
+//     }
 
 const newDropdownContent = `
 <nav>
   <ul class="drop-down closed">
     <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
-    ${mockOrders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
+    ${orders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
   </ul>
 </nav>`;
 const newDropdown = document.createElement('div');
@@ -96,6 +105,8 @@ const domContentLoadedCallback = () => {
     let lastBasket = localStorage.getItem("Basket");
 
     setInterval(() => {
+        updateOrders();
+
         const currentBasket = localStorage.getItem("Basket");
         if (lastBasket !== currentBasket) {
             const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
