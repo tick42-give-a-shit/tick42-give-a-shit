@@ -5,7 +5,9 @@
   "permissions": [
     "storage",
     "activeTab",
-    "tabs"
+    "tabs",
+    "webRequest",
+    "*://*.takeaway.com/*"
   ],
   "background": {
     "scripts": [

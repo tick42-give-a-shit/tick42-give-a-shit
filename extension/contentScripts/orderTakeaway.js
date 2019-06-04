@@ -30,4 +30,14 @@ const domContentLoadedCallback = () => {
     });
 };
 
+chrome.notifications.create("basic", title= "Your food is on the way")
+
+// chrome.webRequest.onCompleted.addListener((details) => {
+//     if(details.url === ""){
+//
+//     }
+//
+//     return {cancel: false}
+// });
+
 document.addEventListener("DOMContentLoaded", domContentLoadedCallback);
