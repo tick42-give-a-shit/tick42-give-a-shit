@@ -100,7 +100,7 @@ const updateDropdownOptions = () => {
 
 const getCurrentRestaurant = (currUrl = window.location.href) => {
     const urlElements = currUrl.split("/");
-    return urlElements[urlElements.length - 1];
+    return urlElements[urlElements.length - 1].replace('#', '');
 };
 
 const domContentLoadedCallback = () => {
@@ -110,36 +110,37 @@ const domContentLoadedCallback = () => {
         return urlElements[urlElements.length - 1];
     };
     let lastBasket = localStorage.getItem("Basket") || "{}";
+    setTimeout(() => {
+        setInterval(() => {
+            updateOrders();
+            const currentBasket = localStorage.getItem("Basket");
 
-    setInterval(() => {
-        updateOrders();
-        const currentBasket = localStorage.getItem("Basket");
-
-        if (lastBasket === "{}" && currentBasket === null) {
-            return;
-        }
-        console.log("asdads", lastBasket, currentBasket);
-
-        if (lastBasket !== currentBasket) {
-            const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
-
-            const restaurant = getCurrentRestaurant(window.location.href);
-            let currentRestaurant = currentRestaurantMap[restaurant];
-
-            if (!currentRestaurant) {
-                const oldBasket = JSON.parse(lastBasket);
-                const basket = JSON.parse(currentBasket);
-                lastBasket = currentBasket;
-
-                const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
-
-                localStorage.setItem(restaurantMapStorage, JSON.stringify({
-                    ...currentRestaurantMap,
-                    [restaurant]: newOrderId
-                }));
+            if (lastBasket === "{}" && currentBasket === null) {
+                return;
             }
-        }
-        lastBasket = currentBasket;
+            console.log("asdads", lastBasket, currentBasket);
+
+            if (lastBasket !== currentBasket) {
+                const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
+
+                const restaurant = getCurrentRestaurant(window.location.href);
+                let currentRestaurant = currentRestaurantMap[restaurant];
+
+                if (!currentRestaurant) {
+                    const oldBasket = JSON.parse(lastBasket);
+                    const basket = JSON.parse(currentBasket);
+                    lastBasket = currentBasket;
+
+                    const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
+
+                    localStorage.setItem(restaurantMapStorage, JSON.stringify({
+                        ...currentRestaurantMap,
+                        [restaurant]: newOrderId
+                    }));
+                }
+            }
+            lastBasket = currentBasket;
+        }, 1000);
     }, 1000);
 
     // chrome.runtime.sendMessage({ type: "getEats" }, (response) => {

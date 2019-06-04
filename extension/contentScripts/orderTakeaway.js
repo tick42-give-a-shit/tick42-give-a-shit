@@ -4,7 +4,7 @@ const domContentLoadedCallback = () => {
     // on click of basket
     const getCurrentRestaurant = (currUrl) => {
         const urlElements = currUrl.split("/");
-        return urlElements[urlElements.length - 1];
+        return urlElements[urlElements.length - 1].replace('#', '');
     };
 
     chrome.extension.getBackgroundPage((backgroundWindow) => {
