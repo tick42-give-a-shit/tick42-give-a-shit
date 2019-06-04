@@ -1,9 +1,3 @@
-Storage.prototype.setItem = (key, value) => {
-    const oldValue = localStorage.getItem(key);
-    localStorage.setItem(key, value);
-    const newValue = localStorage.getItem(key);
-    window.dispatchEvent(new Event('storage', [key, oldValue, newValue]));
-}
 
 // think of shared place for this constant
 const gotContext = "GOT_Extension";
@@ -80,21 +74,24 @@ const domContentLoadedCallback = () => {
         const urlElements = currUrl.split("/");
         return urlElements[urlElements.length - 1];
     };
+    let lastBasket = "{}";
+    setInterval(() => {
+        if (lastBasket !== localStorage.getItem("Basket")) {
 
-    window.addEventListener("storage", (key, oldValue, newValue) => {
-        if (key === "Basket") {
-            const oldBasket = JSON.parse(oldValue);
-            const basket = JSON.parse(newValue);
+            const oldBasket = JSON.parse(lastBasket);
+            const basket = JSON.parse(localStorage.getItem("Basket"));
+            lastBasket = localStorage.getItem("Basket");
 
             const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
 
-            const restaurant = getCurrentRestaurant();
+            const restaurant = getCurrentRestaurant(window.location.href);
 
             const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage));
 
-            localStorage.setItem(restaurantMapStorage, { ...currentRestaurantMap, [restaurant]: newOrderId });
+            localStorage.setItem(restaurantMapStorage, JSON.stringify({ ...currentRestaurantMap, [restaurant]: newOrderId }));
+
         }
-    });
+    }, 1000);
 
     chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
         const { takeaway } = response;
