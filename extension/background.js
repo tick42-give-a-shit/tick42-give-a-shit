@@ -96,16 +96,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "getOrdersForRestaurant":
             const { site, restaurant } = message;
             const ordersAsObjects = window.context.eats[site];
-            const orders = Object.keys(ordersAsObjects).filter((k) => ordersAsObjects[k].restaurant === restaurant.slice(0,-1));
-            
-            sendResponse(orders.map(k=>{return{[`${k}`]:ordersAsObjects[k]}}));
-break;
-case "setAir":
-        const { value } = message;
-        window.glue.contexts.update(gotContext, { air: value })
+            const orders = Object.keys(ordersAsObjects).filter((k) => ordersAsObjects[k].restaurant === restaurant.slice(0, -1));
 
-        break;
-       
+            sendResponse(orders.map(k => { return { [`${k}`]: ordersAsObjects[k] } }));
+            break;
+        case "setAir":
+            const { value } = message;
+            window.glue.contexts.update(gotContext, { air: value })
+
+            break;
+
         // case "getMachineId":
         //     sendResponse(window.glue.agm.instance.machine);
         //     break;
