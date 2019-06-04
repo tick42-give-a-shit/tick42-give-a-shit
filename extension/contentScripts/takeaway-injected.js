@@ -2,7 +2,7 @@
 const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
 let orders = {};
-let shouldInvoke =true;
+let shouldInvoke = true;
 const updateOrders = () => {
     chrome.runtime.sendMessage({
         type: "getOrdersForRestaurant",
@@ -10,10 +10,10 @@ const updateOrders = () => {
         restaurant: getCurrentRestaurant()
     }, (response) => {
         orders = response || {};
-        if(shouldInvoke){
+        if (shouldInvoke) {
             updateDropdownOptions();
         }
-       
+
     });
 };
 
@@ -37,10 +37,10 @@ const updateOrders = () => {
 //         time: '13:30'
 //     }
 
-const updateDropdownOptions =() =>{
-    shouldInvoke =false;
+const updateDropdownOptions = () => {
+    shouldInvoke = false;
     let newDropdownContent;
-        console.log(orders);
+    console.log(orders);
     if (Object.values(orders).length > 0) {
         newDropdownContent = `
     <nav>
@@ -55,7 +55,7 @@ const updateDropdownOptions =() =>{
       <div id="no-orders" class="cartbutton-button">There are no active orders (Tick42 Eats)</div>
     </section>`;
     }
-    
+
     const newDropdown = document.createElement('div');
     newDropdown.innerHTML = newDropdownContent;
     const cartbuttonElement = document.getElementsByClassName('cartbutton')[0];
@@ -63,61 +63,59 @@ const updateDropdownOptions =() =>{
     if (menuCartFixedElement) {
         menuCartFixedElement.insertBefore(newDropdown, cartbuttonElement);
     }
-    
+
     const newTick42EatsButtonContent = `
             <section class="cartbutton" >
                 <a id="new-tick42-eats" class="cartbutton-button"><input id="time" type="time" value="12:30" required>New order (Tick42 Eats)</a>
     </section>`;
-        const newTick42EatsButton = document.createElement('div');
-        newTick42EatsButton.innerHTML = newTick42EatsButtonContent;
-        if (menuCartFixedElement) {
-            menuCartFixedElement.insertBefore(newTick42EatsButton, cartbuttonElement);
-        }
-    
-        const navButtonElement = document.getElementsByClassName('nav-button')[0];
-        if (navButtonElement) {
-            navButtonElement.addEventListener('click', function () {
-                this.parentNode.parentNode.classList.toggle('closed');
+    const newTick42EatsButton = document.createElement('div');
+    newTick42EatsButton.innerHTML = newTick42EatsButtonContent;
+    if (menuCartFixedElement) {
+        menuCartFixedElement.insertBefore(newTick42EatsButton, cartbuttonElement);
+    }
+
+    const navButtonElement = document.getElementsByClassName('nav-button')[0];
+    if (navButtonElement) {
+        navButtonElement.addEventListener('click', function () {
+            this.parentNode.parentNode.classList.toggle('closed');
+        }, false);
+    }
+
+    const timeElement = document.getElementById('time');
+    if (timeElement) {
+        timeElement.addEventListener('click', (event) => {
+            event.stopPropagation();
+        }, false);
+    }
+
+    const newTick42EatsElement = document.getElementById('new-tick42-eats');
+    if (newTick42EatsElement) {
+        newTick42EatsElement.addEventListener('click', () => {
+            const timeElement = document.getElementById('time');
+            const newTick42EatsOrderTime = timeElement.value;
+            console.log("TCL: newTick42EatsOrderTime", newTick42EatsOrderTime)
+
+            startOrder();
+        }, false);
+    }
+
+    const tick42OrderElements = document.getElementsByClassName('tick42-order');
+    if (tick42OrderElements) {
+        Array.from(tick42OrderElements).forEach((tick42OrderElement) => {
+            tick42OrderElement.addEventListener('click', function (e) {
+                tick42OrderElement.parentNode.parentNode.classList.toggle('closed');
+                console.log(this.innerHTML);
+                const restaurant = getCurrentRestaurant();
+                const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage));
+
+                const takeawayOrderId = currentRestaurantMap[restaurant];
+
+                const productsFromCart = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId];
+                onOrder(undefined, productsFromCart, e.target.id);
             }, false);
-        }
-    
-        const timeElement = document.getElementById('time');
-        if (timeElement) {
-            timeElement.addEventListener('click', (event) => {
-                event.stopPropagation();
-            }, false);
-        }
-    
-        const newTick42EatsElement = document.getElementById('new-tick42-eats');
-        if (newTick42EatsElement) {
-            newTick42EatsElement.addEventListener('click', () => {
-                const timeElement = document.getElementById('time');
-                const newTick42EatsOrderTime = timeElement.value;
-                console.log("TCL: newTick42EatsOrderTime", newTick42EatsOrderTime)
-    
-                startOrder();
-            }, false);
-        }
-    
-        const tick42OrderElements = document.getElementsByClassName('tick42-order');
-        if (tick42OrderElements) {
-            Array.from(tick42OrderElements).forEach((tick42OrderElement) => {
-                tick42OrderElement.addEventListener('click', function (e) {
-                    tick42OrderElement.parentNode.parentNode.classList.toggle('closed');
-                    console.log(this.innerHTML);
-                    const restaurant = getCurrentRestaurant();
-                    const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage));
-                
-                    const takeawayOrderId = currentRestaurantMap[restaurant];
-                
-                    const productsFromCart = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId];
-                    onOrder(undefined,productsFromCart,e.target.id);
-                }, false);
-            });
-        }
+        });
+    }
 }
-
-
 
 const getCurrentRestaurant = (currUrl = window.location.href) => {
     const urlElements = currUrl.split("/");
