@@ -14,19 +14,15 @@ const domContentLoadedCallback1 = () => {
         const orderId = map[restaurant];
 
         const basket = JSON.parse(localStorage.getItem("Basket"));
-
-        console.log("1...", cart, basket);
-        const currentProducts = Object.keys(cart).reduce((productsArray, username, index, self) => {
-            const products = self[username];
+        const currentProducts = Object.keys(cart).reduce((productsArray, username) => {
+            const products = cart[username];
             productsArray.push(...products);
             return productsArray
         }, []);
 
-        console.log("2...", orderId, currentProducts);
 
-        basket.products[orderId] = currentProducts;
-
-        localStorage.setItem("Basket", basket);
+        basket[orderId].products = currentProducts;
+        localStorage.setItem("Basket", JSON.stringify(basket));
         window.location.reload();
     });
 };
