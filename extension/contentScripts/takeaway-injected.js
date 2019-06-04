@@ -119,8 +119,6 @@ const domContentLoadedCallback = () => {
             if (lastBasket === "{}" && currentBasket === null) {
                 return;
             }
-            console.log("asdads", lastBasket, currentBasket);
-
             if (lastBasket !== currentBasket) {
                 const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
 

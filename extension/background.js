@@ -98,6 +98,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             executeOrder(message);
             break;
         case "getTakeawayCart":
+            console.log("prashtam")
             sendResponse(window.context.eats.takeaway[window.nextToExecute].cart);
             break;
         case "getOrdersForRestaurant":

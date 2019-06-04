@@ -15,14 +15,14 @@ const domContentLoadedCallback1 = () => {
 
         const basket = JSON.parse(localStorage.getItem("Basket"));
 
-        console.log("1", cart, basket);
+        console.log("1...", cart, basket);
         const currentProducts = Object.keys(cart).reduce((productsArray, username, index, self) => {
             const products = self[username];
             productsArray.push(...products);
             return productsArray
         }, []);
 
-        console.log("2", orderId, currentProducts);
+        console.log("2...", orderId, currentProducts);
 
         basket.products[orderId] = currentProducts;
 
@@ -31,4 +31,8 @@ const domContentLoadedCallback1 = () => {
     });
 };
 
-document.addEventListener("DOMContentLoaded", domContentLoadedCallback1);
+if (document.readyState !== 'loading') {
+    domContentLoadedCallback1();
+} else {
+    document.addEventListener("DOMContentLoaded", domContentLoadedCallback1);
+}
