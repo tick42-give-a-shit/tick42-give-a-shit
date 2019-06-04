@@ -9,6 +9,7 @@ const updateOrders = () => {
         site: "takeaway",
         restaurant: getCurrentRestaurant()
     }, (response) => {
+        console.log("orders", response);
         orders = response || {};
         if (shouldInvoke) {
             updateDropdownOptions();

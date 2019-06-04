@@ -96,7 +96,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "getOrdersForRestaurant":
             const { site, restaurant } = message;
             const ordersAsObjects = window.context.eats[site];
-            const orders = Object.keys(ordersAsObjects).filter((k) => ordersAsObjects[k].restaurant === restaurant.slice(0, -1));
+            const orders = Object.keys(ordersAsObjects).filter((k) => {
+
+                if (restaurant[restaurant.length - 1] == "#") {
+                    return ordersAsObjects[k].restaurant === restaurant.slice(0, -1);
+                }
+                return ordersAsObjects[k].restaurant === restaurant;
+            });
             let resultObject = {};
 
             orders.forEach(k => resultObject = { ...resultObject, [k]: ordersAsObjects[k] });
