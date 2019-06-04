@@ -10,11 +10,63 @@ const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
 let orders = {};
 
+const mockOrders = [
+    {
+        restaurant: 'Boom Burgers',
+        platform: 'Takeaway',
+        name: 'Georgi Georgiev',
+        time: '12:30'
+    },
+    {
+        restaurant: 'Cactus',
+        platform: 'Foodpanda',
+        name: 'Svetozar Mateev',
+        time: '13:30'
+    },
+    {
+        restaurant: 'Cactus',
+        platform: 'Takeaway',
+        name: 'Martin Donevski',
+        time: '13:30'
+    }
+];
+
+const newDropdownContent = `
+<nav>
+  <ul class="drop-down closed">
+    <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
+    ${mockOrders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
+  </ul>
+</nav>`;
+const newDropdown = document.createElement('div');
+newDropdown.innerHTML = newDropdownContent;
+const cartbuttonElement = document.getElementsByClassName('cartbutton')[0];
+const menuCartFixedElement = document.getElementsByClassName('menu-cart-fixed')[0];
+menuCartFixedElement.insertBefore(newDropdown, cartbuttonElement);
+
+const newTick42EatsButtonContent = `
+<section class="cartbutton">
+	<a href="#" class="cartbutton-button">New order (Tick42 Eats)</a>
+</section>`;
+const newTick42EatsButton = document.createElement('div');
+newTick42EatsButton.innerHTML = newTick42EatsButtonContent;
+menuCartFixedElement.insertBefore(newTick42EatsButton, cartbuttonElement);
+
+document.getElementsByClassName('nav-button')[0].addEventListener('click', function () {
+    this.parentNode.parentNode.classList.toggle('closed');
+}, false);
+
+const tick42OrderElements = document.getElementsByClassName('tick42-order');
+Array.from(tick42OrderElements).forEach((tick42OrderElement) => {
+    tick42OrderElement.addEventListener('click', function () {
+        console.log(this.innerHTML);
+    }, false);
+});
+
 const getCurrentRestaurant = (currUrl = window.location.href) => {
     const urlElements = currUrl.split("/");
     return urlElements[urlElements.length - 1];
 };
-
 
 const domContentLoadedCallback = () => {
     // on click of basket
