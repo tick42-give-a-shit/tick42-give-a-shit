@@ -1,3 +1,10 @@
+Storage.prototype.setItem = (key, value) => {
+    const oldValue = localStorage.getItem(key);
+    localStorage.setItem(key, value);
+    const newValue = localStorage.getItem(key);
+    window.dispatchEvent(new Event('storage', [key, oldValue, newValue]));
+}
+
 // think of shared place for this constant
 const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
@@ -33,11 +40,7 @@ const domContentLoadedCallback = () => {
         return urlElements[urlElements.length - 1];
     };
 
-    window.addEventListener("storage", (key, oldValue, newValue, url, storageArea) => {
-        if (storageArea === "sessionStorage") {
-            return;
-        }
-
+    window.addEventListener("storage", (key, oldValue, newValue) => {
         if (key === "Basket") {
             const oldBasket = JSON.parse(oldValue);
             const basket = JSON.parse(newValue);
