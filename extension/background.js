@@ -3,10 +3,11 @@
 const gotContext = "GOT_Extension";
 let username;
 
+// just for reference
 const contextShape = {
-    users: [
-        "username"
-    ],
+    users: {
+        ["username"]: "username"
+    },
     restrooms: {
         ["2MLEFT"]: false
     },
