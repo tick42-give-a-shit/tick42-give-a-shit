@@ -63,18 +63,8 @@ const setRestroomStatus = (id, status) => {
     }
 };
 
-const orderOnClick = (order) => {
-    // TODO
-    const { restaurant, platform } = order;
-
-    let url;
-    switch (platform) {
-        case "takeaway":
-            url = `https://www.takeaway.com/bg/${restaurant}`;
-            break;
-    }
-
-    chrome.tabs.create({ url })
+const orderOnClick = (restaurant) => {
+    chrome.tabs.create({ url: `https://www.takeaway.com/bg/${restaurant}` })
 };
 
 const cellValuesToOrder = (cellValues) => ({
@@ -97,7 +87,8 @@ const populateOrdersElement = (orders) => {
         orderRow.onclick = function () {
             const cellValues = Array.from(this.children).map(cell => cell.innerHTML.replace(/<p>(.*?)<\/p>/, '$1'));
             const order = cellValuesToOrder(cellValues);
-            // orderOnClick(order);
+            console.log("TCL: orderRow.onclick -> order", order)
+            orderOnClick(restaurant);
         };
         const orderRowCell0 = orderRow.insertCell(0);
         orderRowCell0.innerHTML = `<p id="${orderId}">${restaurant}</p>`;
