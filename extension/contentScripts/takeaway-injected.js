@@ -40,7 +40,7 @@ const updateOrders = () => {
 const updateDropdownOptions =() =>{
     shouldInvoke =false;
     let newDropdownContent;
-
+        console.log(orders);
     if (Object.values(orders).length > 0) {
         newDropdownContent = `
     <nav>
@@ -163,11 +163,11 @@ const domContentLoadedCallback = () => {
         lastBasket = currentBasket;
     }, 1000);
 
-    chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
-        const { takeaway } = response;
+    // chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
+    //     const { takeaway } = response;
 
-        orders = takeaway;
-    });
+    //     orders = takeaway;
+    // });
 };
 
 

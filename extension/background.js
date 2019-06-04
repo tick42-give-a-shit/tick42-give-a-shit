@@ -97,8 +97,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const { site, restaurant } = message;
             const ordersAsObjects = window.context.eats[site];
             const orders = Object.keys(ordersAsObjects).filter((k) => ordersAsObjects[k].restaurant === restaurant.slice(0, -1));
+            let resultObject = {};
 
-            sendResponse(orders.map(k => { return { [`${k}`]: ordersAsObjects[k] } }));
+            orders.forEach(k => resultObject = {...resultObject,[k]: ordersAsObjects[k]});
+            sendResponse(resultObject);
             break;
         case "setAir":
             const { value } = message;
