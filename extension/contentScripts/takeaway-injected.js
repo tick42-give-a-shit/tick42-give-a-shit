@@ -112,7 +112,7 @@ const updateDropdownOptions = () => {
                 const takeawayOrderId = currentRestaurantMap[restaurant];
 
                 const productsFromCart = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId];
-                onOrder(undefined, productsFromCart, e.target.id);
+                onOrder(productsFromCart, e.target.id);
             }, false);
         });
     }
@@ -190,7 +190,8 @@ const startOrder = () => {
     });
 };
 
-const onOrder = (machineId, products, orderId) => {
+const onOrder = (products, orderId) => {
+    console.log("called", products, orderId);
     chrome.runtime.sendMessage({
         type: "onOrder",
         site: "takeaway",

@@ -217,7 +217,7 @@ const handleStartOrder = (message) => {
 
 const handleOrder = (message) => {
     const { site, orderId, products, } = message;
-
+    debugger;
     const machineId = window.glue.agm.instance.machine;
 
     switch (site) {
@@ -225,7 +225,7 @@ const handleOrder = (message) => {
         case "foodpanda":
             glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
                 unsub();
-                const currentState = data;
+                const currentState = JSON.parse(JSON.stringify({ ...data }));
 
                 const currentProducts = currentState.eats[site][orderId].cart;
                 currentProducts[machineId] = products;
