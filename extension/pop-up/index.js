@@ -235,12 +235,12 @@ const attachGlue42TabGroupOnClick = () => {
 };
 
 const setAirConditionerTemperature = (value) => {
-    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature1');
     airConditionerTemperatureElement.value = value;
 };
 
 const attachAirConditionerTemperatureListener = () => {
-    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature1');
     const airConditionerTemperatureElementInputCallback = (e) => {
         if (e.type === 'input') {
             console.log(e.target.value);
