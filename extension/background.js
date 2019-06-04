@@ -93,8 +93,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         case "getOrdersForRestaurant":
             const { site, restaurant } = message;
-            const orders = Object.values(window.context.eats[site]).filter((o) => o.restaurant === restaurant);
-            sendResponse(orders);
+            const ordersAsObjects = window.context.eats[site];
+            const orders = Object.keys(ordersAsObjects).filter((k) => ordersAsObjects[k].restaurant === restaurant.slice(0,-1));
+            
+            sendResponse(orders.map(k=>{return{[`${k}`]:ordersAsObjects[k]}}));
 
             break;
         // case "getMachineId":
