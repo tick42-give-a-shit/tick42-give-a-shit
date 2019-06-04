@@ -1,12 +1,10 @@
-const gotContext = "GOT_Extension";
-
 const getCurrentRestaurantForCheckout = (currUrl = window.location.href) => {
     const urlElements = currUrl.split("/");
     const restaurant = urlElements[urlElements.length - 1].replace('#', '');
     return restaurant.substring("checkout-order-".length);
 };
 
-const domContentLoadedCallback = () => {
+const domContentLoadedCallback1 = () => {
     // on click of basket
 
     chrome.runtime.sendMessage({ type: "getTakeawayCart" }, (cart) => {
@@ -30,4 +28,4 @@ const domContentLoadedCallback = () => {
     });
 };
 
-document.addEventListener("DOMContentLoaded", domContentLoadedCallback);
+document.addEventListener("DOMContentLoaded", domContentLoadedCallback1);
