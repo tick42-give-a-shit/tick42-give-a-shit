@@ -28,14 +28,16 @@ const newDropdownContent = `
 <nav>
   <ul class="drop-down closed">
     <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
-    ${mockOrders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
+    ${mockOrders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
   </ul>
 </nav>`;
 const newDropdown = document.createElement('div');
 newDropdown.innerHTML = newDropdownContent;
 const cartbuttonElement = document.getElementsByClassName('cartbutton')[0];
 const menuCartFixedElement = document.getElementsByClassName('menu-cart-fixed')[0];
-menuCartFixedElement.insertBefore(newDropdown, cartbuttonElement);
+if (typeof menuCartFixedElement !== 'undefined') {
+    menuCartFixedElement.insertBefore(newDropdown, cartbuttonElement);
+}
 
 const newTick42EatsButtonContent = `
 <section class="cartbutton">
@@ -43,7 +45,9 @@ const newTick42EatsButtonContent = `
 </section>`;
 const newTick42EatsButton = document.createElement('div');
 newTick42EatsButton.innerHTML = newTick42EatsButtonContent;
-menuCartFixedElement.insertBefore(newTick42EatsButton, cartbuttonElement);
+if (typeof menuCartFixedElement !== 'undefined') {
+    menuCartFixedElement.insertBefore(newTick42EatsButton, cartbuttonElement);
+}
 
 document.getElementsByClassName('nav-button')[0].addEventListener('click', function () {
     this.parentNode.parentNode.classList.toggle('closed');
@@ -52,6 +56,7 @@ document.getElementsByClassName('nav-button')[0].addEventListener('click', funct
 const tick42OrderElements = document.getElementsByClassName('tick42-order');
 Array.from(tick42OrderElements).forEach((tick42OrderElement) => {
     tick42OrderElement.addEventListener('click', function () {
+        tick42OrderElement.parentNode.parentNode.classList.toggle('closed');
         console.log(this.innerHTML);
     }, false);
 });
