@@ -75,6 +75,7 @@ if (newTick42EatsElement) {
     newTick42EatsElement.addEventListener('click', () => {
         const timeElement = document.getElementById('time');
         const newTick42EatsOrderTime = timeElement.value;
+        console.log("TCL: newTick42EatsOrderTime", newTick42EatsOrderTime)
     }, false);
 }
 
