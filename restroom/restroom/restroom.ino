@@ -40,8 +40,6 @@ void setup() {
   Serial.begin(115200);
 
   pinMode(LED_PIN, OUTPUT);
-
-  connectWiFi();
   
 }
 
@@ -77,141 +75,120 @@ String getJsonField(String json, String field) {
 
 void loop() {
 
+  int debug = 0;
   char* host = "35.242.253.103";
-  //char* host = "192.168.1.201";
-  if (WiFi.status() == WL_CONNECTED) {
+  if (debug) {
+    host = "192.168.1.201";
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi();
+  }
+  
+  if (WiFi.status() != WL_CONNECTED) {
+    return;
+  }
 
-    if (!client.connect(host, 5000)) {
-      morse("...  ...  ...  ");
-      return;
-    }
+  if (!client.connect(host, 5000)) {
+    morse("...  ...  ...  ");
+    return;
+  }
 
-    // Handshake with the server
-    webSocketClient.path = "/gw";
-    webSocketClient.host = host;
-    if (!webSocketClient.handshake(client)) {
-      morse("..  ..  ..  ");
-      return;
-    }
-    
-    morse(".  .  .  ");
+  webSocketClient.path = "/gw";
+  webSocketClient.host = host;
+  if (!webSocketClient.handshake(client)) {
+    morse("..  ..  ..  ");
+    return;
+  }
+  
+  morse(".  .  .  ");
 
-    String data;
-    /*
-    JSON.stringify(
-        {
-            type: "hello",
-            request_id: "0",
-            domain: "global",
-            identity: {
-                application: "tick42-got-sensor"
-            },
-            authentication: {
-                method: "secret",
-                login: "tick42_got",
-                secret: "secret"
-            },
-        });
-    */
-
-    data = String("{\"type\":\"hello\",\"request_id\":\"0\",\"domain\":\"global\",\"identity\":{\"application\":\"tick42-got-sensor\"},\"authentication\":{\"method\":\"secret\",\"login\":\"tick42_got\",\"secret\":\"secret\"}}");
-    webSocketClient.sendData(data);
-    do {
-      delay(5000);
-      webSocketClient.getData(data);
-      morse("...  ...  ...  ");
-    }
-    while (!data.length());
-
-    String peerId = getJsonField(data, "peer_id");
-    /*StaticJsonDocument<500> jsonBuffer1;
-    DeserializationError error1 = deserializeJson(jsonBuffer1, data);
-    if (error1) {
-      webSocketClient.sendData(error1.c_str());
-      return;
-    }*/
-
-    /*String peerId = String((const char*)jsonBuffer1["peer_id"]);
-    //String token = root["access_token"];
-    return;*/
-
-    /*
-    JSON.stringify(
-        {
-          "domain": "global",
-          "type": "create-context",
-          "peer_id": peerId,
-          "request_id": "1",
-          "name": "test",
-          "lifetime": "retained"
-      });
-    */
-    data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"GOT_Extension\",\"lifetime\":\"retained\"}");
-    data.replace("#peerId#", peerId);
-    webSocketClient.sendData(data);
-    do {
-      delay(5000);
-      webSocketClient.getData(data);
-      morse("...  ...  ...  ");
-    }
-    while (!data.length());
-
-    String contextId = getJsonField(data, "context_id");
-    
-    /*
-    JSON.stringify(
+  String data;
+  /*
+  JSON.stringify(
       {
-          "domain": "global",
-          "type": "update-context",
-          "request_id": "3",
-          "peer_id": "peerId",
-          "context_id": "contextId",
-          "delta": { state: "true" }
+          type: "hello",
+          request_id: "0",
+          domain: "global",
+          identity: {
+              application: "tick42-got-sensor"
+          },
+          authentication: {
+              method: "secret",
+              login: "tick42_got",
+              secret: "secret"
+          },
       });
-    */
-    while (true) {
+  */
+
+  data = String("{\"type\":\"hello\",\"request_id\":\"0\",\"domain\":\"global\",\"identity\":{\"application\":\"tick42-got-sensor\"},\"authentication\":{\"method\":\"secret\",\"login\":\"tick42_got\",\"secret\":\"secret\"}}");
+  webSocketClient.sendData(data);
+  do {
+    delay(5000);
+    webSocketClient.getData(data);
+    morse("...  ...  ...  ");
+  }
+  while (client.connected() && !data.length());
+
+  String peerId = getJsonField(data, "peer_id");
+
+  /*
+  JSON.stringify(
+      {
+        "domain": "global",
+        "type": "create-context",
+        "peer_id": peerId,
+        "request_id": "1",
+        "name": "test",
+        "lifetime": "retained"
+    });
+  */
+  data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"GOT_Extension\",\"lifetime\":\"retained\"}");
+  data.replace("#peerId#", peerId);
+  webSocketClient.sendData(data);
+  do {
+    delay(5000);
+    webSocketClient.getData(data);
+    morse("...  ...  ...  ");
+  } while (client.connected() && !data.length());
+
+  String contextId = getJsonField(data, "context_id");
+  
+  /*
+  JSON.stringify(
+    {
+        "domain": "global",
+        "type": "update-context",
+        "request_id": "3",
+        "peer_id": "peerId",
+        "context_id": "contextId",
+        "delta": { state: "true" }
+    });
+  */
+  int state = -1;
+  while (client.connected()) {
     data = 
       "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"restrooms\":{\"3MLEFT\":#state#}}}}";
     data.replace("#peerId#", peerId);
     data.replace("#contextId#", contextId);
+  
+    int mappedValue = (int)(603.74 * pow(map(analogRead(ANALOG_PIN), 0, (1<<10)-1, 0, 5000)/1000.0, -1.16));
+    int newState = mappedValue < 900;
+    if (debug) {
+      webSocketClient.sendData(String(mappedValue));
+    }
+    if (state != newState) {
+      state = newState;
 
-    int mappedValue = (int)( 603.74 * pow(map(analogRead(ANALOG_PIN), 0, (1<<10)-1, 0, 5000)/1000.0, -1.16));
-    int state = mappedValue < 600;
-    //webSocketClient.sendData(String(mappedValue));
-    data.replace("#state#", state ? "true" : "false");
-    digitalWrite(LED_PIN, state ? HIGH : LOW);
- 
-    webSocketClient.sendData(data);
+      data.replace("#state#", state ? "true" : "false");
+
+      digitalWrite(LED_PIN, state ? HIGH : LOW);
+
+      webSocketClient.sendData(data);
+
+      // drain websocket
+      webSocketClient.getData(data);
+    }
     delay(2000);
-    }
-
   }
-    /*String url = "/";
-
-    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-                 "Connection: close\r\n\r\n");*/
-    /*
-    while (client.connected()) {
-      String line = client.readStringUntil('\n');
-      if (line == "\r") {
-        Serial.println("headers received");
-        break;
-      }
-    }
-    */
-    /*
-    String line = client.readStringUntil('\n');
-    if (line.startsWith("{\"state\":\"success\"")) {
-      Serial.println("esp8266/Arduino CI successfull!");
-    } else {
-      Serial.println("esp8266/Arduino CI has failed");
-    }
-    Serial.println("reply was:");
-    Serial.println("==========");
-    Serial.println(line);
-    Serial.println("==========");
-    Serial.println("closing connection");
-      }
-    */
 
 }
