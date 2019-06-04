@@ -112,6 +112,9 @@ const populateOrdersElement = (orders) => {
         if (isInitiator) {
             const orderRowCell4 = orderRow.insertCell(4);
             orderRowCell4.innerHTML = `<button class="order-now">Order Now</button>`;
+        } else {
+            const orderRowCell4 = orderRow.insertCell(4);
+            orderRowCell4.innerHTML = '';
         }
     }
 };
