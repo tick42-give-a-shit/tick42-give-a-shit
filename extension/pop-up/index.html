@@ -40,7 +40,31 @@
             <button id="glue42-tab-group">Gluify Tab Group</button>
         </div>
         <div class="tab" data-id="tab5">
-            <input type="number" id="air-conditioner-temperature" value="25"></input>
+            <table id="air-conditioners">
+                <tr>
+                    <td>
+                        <p class="floor">Floor 4</p>
+                    </td>
+                    <td><input type="number" class="available" id="air-conditioner-temperature1" value="25"></input>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p class="floor">Floor 3</p>
+                    </td>
+                    <td>
+                        <div class="unavailable" id="air-conditioner-temperature2">Unavailable</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p class="floor">Floor 2</p>
+                    </td>
+                    <td>
+                        <input type="number" class="available" id="air-conditioner-temperature3" value="25"></input>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
     <script src="index.js"></script>

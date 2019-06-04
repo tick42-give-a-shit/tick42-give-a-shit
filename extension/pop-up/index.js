@@ -172,6 +172,7 @@ const getInfoFromBackgroundScript = () => {
         updateEats(backgroundWindow);
         updateRestrooms(backgroundWindow);
         updateMilk(backgroundWindow);
+        updateAirConditioner(backgroundWindow);
     });
 };
 
@@ -209,6 +210,12 @@ window.updateEats = (window) => {
     populateOrdersElement(orders);
 };
 
+window.updateAirConditioner = (window) => {
+    const { air } = window.context;
+    console.log("updateAirConditioner", air)
+    setAirConditionerTemperature(air)
+}
+
 const attachGlue42TabGroupOnClick = () => {
     const glue42TabGroupElement = document.getElementById('glue42-tab-group');
     glue42TabGroupElement.onclick = () => {
@@ -235,14 +242,15 @@ const attachGlue42TabGroupOnClick = () => {
 };
 
 const setAirConditionerTemperature = (value) => {
-    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature1');
     airConditionerTemperatureElement.value = value;
 };
 
 const attachAirConditionerTemperatureListener = () => {
-    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature1');
     const airConditionerTemperatureElementInputCallback = (e) => {
         if (e.type === 'input') {
+            chrome.runtime.sendMessage({ type: "setAir", value: e.target.value })
             console.log(e.target.value);
         }
     };
