@@ -24,6 +24,7 @@ const domContentLoadedCallback = () => {
             basket.products[orderId] = currentProducts;
 
             localStorage.setItem("Basket", basket);
+            window.location.reload();
             unbsub();
         });
     });

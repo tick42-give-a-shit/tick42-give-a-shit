@@ -1,3 +1,5 @@
+let machineId;
+
 const attachTabOnClicks = () => {
     const tabAElements = document.getElementsByClassName('tab-a');
     for (const tabAElement of tabAElements) {
@@ -90,7 +92,7 @@ const populateOrdersElement = (orders) => {
         }
     });
 
-    for (const { restaurant, platform, name, time } of orders) {
+    for (const { restaurant, platform, name, time, isInitiator } of orders) {
         const orderRow = ordersElement.insertRow(1);
         orderRow.onclick = function () {
             const cellValues = Array.from(this.children).map(cell => cell.innerHTML.replace(/<p>(.*?)<\/p>/, '$1'));
@@ -105,6 +107,12 @@ const populateOrdersElement = (orders) => {
         orderRowCell2.innerHTML = `<p>${name}</p>`;
         const orderRowCell3 = orderRow.insertCell(3);
         orderRowCell3.innerHTML = `<p>${time}</p>`;
+
+        console.log(isInitiator);
+        if (isInitiator) {
+            const orderRowCell4 = orderRow.insertCell(4);
+            orderRowCell4.innerHTML = `<button>Order Now</button>`;
+        }
     }
 };
 
@@ -157,6 +165,10 @@ const attachOrdersTableHeadersOnClicks = () => {
 
 const getInfoFromBackgroundScript = () => {
     chrome.runtime.getBackgroundPage((backgroundWindow) => {
+        if (!machineId) {
+            machineId = backgroundWindow.machineId;
+        }
+
         updateEats(backgroundWindow);
         updateRestrooms(backgroundWindow);
         updateMilk(backgroundWindow);
@@ -183,17 +195,64 @@ window.updateEats = (window) => {
         const ordersMap = eats[platform];
         Object.keys(ordersMap).forEach((orderId) => {
             const { restaurant, orderTime, initiator } = ordersMap[orderId];
+            console.log("asdadsadsaas", (machineId === initiator), ordersMap[orderId], machineId, initiator);
             orders.push({
                 restaurant,
                 platform,
                 name: initiator,
                 time: orderTime,
+                isInitiator: (machineId === initiator)
             })
         });
     });
 
     populateOrdersElement(orders);
 };
+
+const attachGlue42TabGroupOnClick = () => {
+    const glue42TabGroupElement = document.getElementById('glue42-tab-group');
+    glue42TabGroupElement.onclick = () => {
+        chrome.tabs.query({ currentWindow: true }, (tabs) => {
+            const tabUrlsAndTitlesToOpen = [];
+            tabs.forEach(({ url, title }) => {
+                if (!url.startsWith('chrome://')) {
+                    tabUrlsAndTitlesToOpen.push({ url, title });
+                }
+            });
+            const tabGroupId = (+new Date()).toString();
+            chrome.runtime.sendMessage({
+                type: 'T42WndCreate',
+                windows: tabUrlsAndTitlesToOpen.map(({ url, title }, index) => ({
+                    name: `${tabGroupId}-${index}`,
+                    url,
+                    title,
+                    mode: 'tab',
+                    tabGroupId
+                }))
+            });
+        });
+    };
+};
+
+const setAirConditionerTemperature = (value) => {
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    airConditionerTemperatureElement.value = value;
+};
+
+const attachAirConditionerTemperatureListener = () => {
+    const airConditionerTemperatureElement = document.getElementById('air-conditioner-temperature');
+    const airConditionerTemperatureElementInputCallback = (e) => {
+        if (e.type === 'input') {
+            console.log(e.target.value);
+        }
+    };
+    airConditionerTemperatureElement.addEventListener('input', airConditionerTemperatureElementInputCallback);
+};
+
+// chrome.runtime.sendMessage({ type: "getMachineId" }, (response) => {
+//     console.log("opaa", response)
+//     machineId = response;
+// });
 
 const DOMContentLoadedCallback = () => {
     getInfoFromBackgroundScript();
@@ -221,6 +280,8 @@ const DOMContentLoadedCallback = () => {
     // ];
     // populateOrdersElement(mockOrders);
     attachOrdersTableHeadersOnClicks();
+    attachGlue42TabGroupOnClick();
+    attachAirConditionerTemperatureListener();
 };
 
 document.addEventListener('DOMContentLoaded', DOMContentLoadedCallback, false);
