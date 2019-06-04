@@ -1,36 +1,37 @@
-Storage.prototype.setItem = (key, value) => {
-    const oldValue = localStorage.getItem(key);
-    localStorage.setItem(key, value);
-    const newValue = localStorage.getItem(key);
-    window.dispatchEvent(new Event('storage', [key, oldValue, newValue]));
-}
-
 // think of shared place for this constant
 const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
-let orders = {};
+let orders = [];
 
-const mockOrders = [
-    {
-        restaurant: 'Boom Burgers',
-        platform: 'Takeaway',
-        name: 'Georgi Georgiev',
-        time: '12:30'
-    },
-    {
-        restaurant: 'Cactus',
-        platform: 'Foodpanda',
-        name: 'Svetozar Mateev',
-        time: '13:30'
-    },
-    {
-        restaurant: 'Cactus',
-        platform: 'Takeaway',
-        name: 'Martin Donevski',
-        time: '13:30'
-    }
-];
-// const mockOrders = [];
+const updateOrders = () => {
+    chrome.runtime.sendMessage({
+        type: "getOrdersForRestaurant",
+        site: "takeaway",
+        restaurant: getCurrentRestaurant()
+    }, (response) => {
+        orders = response || [];
+    });
+};
+
+// const mockOrders = [
+//     {
+//         restaurant: 'Boom Burgers',
+//         platform: 'Takeaway',
+//         name: 'Georgi Georgiev',
+//         time: '12:30'
+//     },
+//     {
+//         restaurant: 'Cactus',
+//         platform: 'Foodpanda',
+//         name: 'Svetozar Mateev',
+//         time: '13:30'
+//     },
+//     {
+//         restaurant: 'Cactus',
+//         platform: 'Takeaway',
+//         name: 'Martin Donevski',
+//         time: '13:30'
+//     }
 
 let newDropdownContent;
 
@@ -39,7 +40,7 @@ if (mockOrders.length > 0) {
 <nav>
   <ul class="drop-down closed">
     <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
-    ${mockOrders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
+    ${orders.map(({ restaurant, platform, name, time }) => `<li><a href="#" class="nav-button tick42-order">${restaurant} (${platform}) ${name} ${time}</a></li>`)}
   </ul>
 </nav>`;
 } else {
@@ -107,26 +108,37 @@ const getCurrentRestaurant = (currUrl = window.location.href) => {
 
 const domContentLoadedCallback = () => {
     // on click of basket
-
     const getCurrentRestaurant = (currUrl) => {
         const urlElements = currUrl.split("/");
         return urlElements[urlElements.length - 1];
     };
+    let lastBasket = localStorage.getItem("Basket");
 
-    window.addEventListener("storage", (key, oldValue, newValue) => {
-        if (key === "Basket") {
-            const oldBasket = JSON.parse(oldValue);
-            const basket = JSON.parse(newValue);
+    setInterval(() => {
+        updateOrders();
 
-            const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
+        const currentBasket = localStorage.getItem("Basket");
+        if (lastBasket !== currentBasket) {
+            const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
 
-            const restaurant = getCurrentRestaurant();
+            const restaurant = getCurrentRestaurant(window.location.href);
+            let currentRestaurant = currentRestaurantMap[restaurant];
 
-            const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage));
+            if (!currentRestaurant) {
+                const oldBasket = JSON.parse(lastBasket);
+                const basket = JSON.parse(currentBasket);
 
-            localStorage.setItem(restaurantMapStorage, { ...currentRestaurantMap, [restaurant]: newOrderId });
+                const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
+
+                localStorage.setItem(restaurantMapStorage, JSON.stringify({
+                    ...currentRestaurantMap,
+                    [restaurant]: newOrderId
+                }));
+            }
+
+            lastBasket = localStorage.getItem("Basket");
         }
-    });
+    }, 1000);
 
     chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
         const { takeaway } = response;
