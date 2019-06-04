@@ -1,4 +1,3 @@
-
 // think of shared place for this constant
 const gotContext = "GOT_Extension";
 const restaurantMapStorage = "restaurantMap";
@@ -90,27 +89,33 @@ const getCurrentRestaurant = (currUrl = window.location.href) => {
 
 const domContentLoadedCallback = () => {
     // on click of basket
-
     const getCurrentRestaurant = (currUrl) => {
         const urlElements = currUrl.split("/");
         return urlElements[urlElements.length - 1];
     };
-    let lastBasket = "{}";
+    let lastBasket = localStorage.getItem("Basket");
+
     setInterval(() => {
-        if (lastBasket !== localStorage.getItem("Basket")) {
-
-            const oldBasket = JSON.parse(lastBasket);
-            const basket = JSON.parse(localStorage.getItem("Basket"));
-            lastBasket = localStorage.getItem("Basket");
-
-            const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
+        const currentBasket = localStorage.getItem("Basket");
+        if (lastBasket !== currentBasket) {
+            const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
 
             const restaurant = getCurrentRestaurant(window.location.href);
+            let currentRestaurant = currentRestaurantMap[restaurant];
 
-            const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage));
+            if (!currentRestaurant) {
+                const oldBasket = JSON.parse(lastBasket);
+                const basket = JSON.parse(currentBasket);
 
-            localStorage.setItem(restaurantMapStorage, JSON.stringify({ ...currentRestaurantMap, [restaurant]: newOrderId }));
+                const newOrderId = Object.keys(basket).find(id => !Object.keys(oldBasket).includes(id));
 
+                localStorage.setItem(restaurantMapStorage, JSON.stringify({
+                    ...currentRestaurantMap,
+                    [restaurant]: newOrderId
+                }));
+            }
+
+            lastBasket = localStorage.getItem("Basket");
         }
     }, 1000);
 
