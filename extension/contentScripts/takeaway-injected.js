@@ -23,11 +23,12 @@ const updateDropdownOptions = () => {
     let newDropdownContent;
     console.log(orders);
     if (Object.values(orders).length > 0) {
+
         newDropdownContent = `
     <nav>
       <ul class="drop-down closed">
         <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
-        ${Object.keys(orders).map((orderId) => `<li><a href="#" class="nav-button tick42-order" id="${orderId}" >${orders[orderId].restaurant} (${orders[orderId].platform}) ${orders[orderId].name} ${orders[orderId].time}</a></li>`)}
+        ${Object.keys(orders).map((orderId) => `<li><a href="#" class="nav-button tick42-order" id="${orderId}" >${orders[orderId].restaurant} (Takeaway) ${orders[orderId].initiator} ${new Date(orders[orderId].orderTime).getHours()}:${new Date(orders[orderId].orderTime).getMinutes()}</a></li>`)}
       </ul>
     </nav>`;
     } else {
