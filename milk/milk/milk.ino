@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
 #include <ArduinoJson.h>
+//#include <WiFiClientSecure.h>
 
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
@@ -8,9 +9,13 @@ const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 const int LED_PIN = 5;
 const uint8_t GPIO0 = 0;
 
+// GW HTTP client
 WiFiClient client;
+// GW WS client
 WebSocketClient webSocketClient;
 
+// Zapier HTTP client
+WiFiClient/*Secure*/ secureClient;
 
 void connectWiFi() {
 
@@ -35,15 +40,6 @@ void connectWiFi() {
 
 }
 
-void setup() {
-
-  Serial.begin(115200);
-
-  pinMode(LED_PIN, OUTPUT);
-  pinMode(GPIO0, INPUT);
-  
-}
-
 void morse(String str) {
   digitalWrite(LED_PIN, LOW);
   delay(500);
@@ -63,6 +59,22 @@ void morse(String str) {
     }
   }
 }
+
+//const char fingerprint[] PROGMEM = "5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
+//const char fingerprint[] PROGMEM = "AF 21 4A 6C 2C E4 CE 6E 99 7B B8 EA 58 CF 57 6B C2 35 A4 0D";
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(GPIO0, INPUT);
+
+  connectWiFi();
+
+
+}
+
+
 
 String getJsonField(String json, String field) {
   char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
@@ -84,7 +96,7 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
-  
+
   if (WiFi.status() != WL_CONNECTED) {
     return;
   }
@@ -100,7 +112,7 @@ void loop() {
     morse("..  ..  ..  ");
     return;
   }
-  
+
   morse(".  .  .  ");
 
   String data;
@@ -153,7 +165,7 @@ void loop() {
   } while (client.connected() && !data.length());
 
   String contextId = getJsonField(data, "context_id");
-  
+
   /*
   JSON.stringify(
     {
@@ -167,12 +179,23 @@ void loop() {
   */
   int state = 1;
   while (client.connected()) {
-    data = 
+    data =
       "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"milk\":#state#}}}";
     data.replace("#peerId#", peerId);
     data.replace("#contextId#", contextId);
-  
-    byte pressed = (digitalRead(GPIO0) == LOW);
+
+    byte pressed = 0;
+    while (client.connected()) {
+      pressed = (digitalRead(GPIO0) == LOW);
+      if (pressed) {
+        break;
+      }
+      delay(200);
+    }
+
+    if (!client.connected()) {
+      return;
+    }
 
     if (pressed) {
       state = !state;
@@ -181,18 +204,40 @@ void loop() {
     if (debug) {
       webSocketClient.sendData(String(state));
     }
-    
+
     if (pressed) {
       data.replace("#state#", state ? "true" : "false");
 
-      digitalWrite(LED_PIN, !state ? HIGH : LOW);
-
       webSocketClient.sendData(data);
+      if (!state) {
+        //secureClient.setFingerprint(fingerprint);
+        if (secureClient.connect("192.168.1.201", 3000)) {
+          secureClient.print(String("GET ") + String("/") + " HTTP/1.1\r\n" +
+                             "Connection: close\r\n\r\n\r\n");
+          while (secureClient.connected()) {
+            String line = secureClient.readStringUntil('\n');
+            if (line == "\r") {
+              break;
+            }
+          }
+          //morse(".-.  .-.  .-.  .-.  ");
+        }
+        else {
+          morse(".. .. .. .. ");
+        }
+      }
+
+      digitalWrite(LED_PIN, !state ? HIGH : LOW);
 
       // drain websocket
       webSocketClient.getData(data);
+
+      while (digitalRead(GPIO0) == LOW) {
+        // wait for user to release button
+        delay(100);
+      }
     }
-    delay(3000);
+
   }
 
 }
