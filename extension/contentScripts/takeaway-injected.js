@@ -23,11 +23,12 @@ const updateDropdownOptions = () => {
     let newDropdownContent;
     console.log(orders);
     if (Object.values(orders).length > 0) {
+
         newDropdownContent = `
     <nav>
       <ul class="drop-down closed">
         <li><a href="#" class="nav-button">Order with a colleague (Tick42 Eats)</a></li>
-        ${Object.keys(orders).map((orderId) => `<li><a href="#" class="nav-button tick42-order" id="${orderId}" >${orders[orderId].restaurant} (${orders[orderId].platform}) ${orders[orderId].name} ${orders[orderId].time}</a></li>`)}
+        ${Object.keys(orders).map((orderId) => `<li><a href="#" class="nav-button tick42-order" id="${orderId}" >${orders[orderId].restaurant} (Takeaway) ${orders[orderId].initiator} ${new Date(orders[orderId].orderTime).getHours()}:${new Date(orders[orderId].orderTime).getMinutes()}</a></li>`)}
       </ul>
     </nav>`;
     } else {
@@ -91,7 +92,7 @@ const updateDropdownOptions = () => {
 
                 const takeawayOrderId = currentRestaurantMap[restaurant];
 
-                const productsFromCart = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId];
+                const productsFromCart = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId].products;
                 onOrder(productsFromCart, e.target.id);
             }, false);
         });
@@ -118,8 +119,6 @@ const domContentLoadedCallback = () => {
             if (lastBasket === "{}" && currentBasket === null) {
                 return;
             }
-            console.log("asdads", lastBasket, currentBasket);
-
             if (lastBasket !== currentBasket) {
                 const currentRestaurantMap = JSON.parse(localStorage.getItem(restaurantMapStorage) || "{}");
 
@@ -142,12 +141,6 @@ const domContentLoadedCallback = () => {
             lastBasket = currentBasket;
         }, 1000);
     }, 1000);
-
-    // chrome.runtime.sendMessage({ type: "getEats" }, (response) => {
-    //     const { takeaway } = response;
-
-    //     orders = takeaway;
-    // });
 };
 
 

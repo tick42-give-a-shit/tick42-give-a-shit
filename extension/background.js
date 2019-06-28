@@ -3,10 +3,11 @@
 const gotContext = "GOT_Extension";
 let username;
 
+// just for reference
 const contextShape = {
-    users: [
-        "username"
-    ],
+    users: {
+        ["username"]: "username"
+    },
     restrooms: {
         ["2MLEFT"]: false
     },
@@ -93,7 +94,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "getEats":
             sendResponse(window.context.eats);
             break;
-
+        case "executeOrder":
+            executeOrder(message);
+            break;
+        case "getTakeawayCart":
+            console.log("prashtam")
+            sendResponse(window.context.eats.takeaway[window.nextToExecute].cart);
+            break;
         case "getOrdersForRestaurant":
             const { site, restaurant } = message;
             const ordersAsObjects = window.context.eats[site];
@@ -109,6 +116,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             orders.forEach(k => resultObject = { ...resultObject, [k]: ordersAsObjects[k] });
             sendResponse(resultObject);
             break;
+
         case "setAir":
             const { value } = message;
             window.glue.contexts.update(gotContext, { air: value })
@@ -267,8 +275,10 @@ const handleOrder = (message) => {
     }
 };
 
+
 const executeOrder = (message) => {
-    const { restaurant, orderId, site, machineId, products, } = message;
+    const { restaurant, orderId } = message;
+    window.nextToExecute = orderId;
 
     const url = "https://www.takeaway.com/bg/" + "checkout-order-" + restaurant;
 

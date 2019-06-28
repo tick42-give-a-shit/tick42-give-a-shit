@@ -1,33 +1,34 @@
-const gotContext = "GOT_Extension";
+const getCurrentRestaurantForCheckout = (currUrl = window.location.href) => {
+    const urlElements = currUrl.split("/");
+    const restaurant = urlElements[urlElements.length - 1].replace('#', '');
+    return restaurant.substring("checkout-order-".length);
+};
 
-const domContentLoadedCallback = () => {
+const domContentLoadedCallback1 = () => {
     // on click of basket
-    const getCurrentRestaurant = (currUrl) => {
-        const urlElements = currUrl.split("/");
-        return urlElements[urlElements.length - 1].replace('#', '');
-    };
 
-    chrome.extension.getBackgroundPage((backgroundWindow) => {
-        let orderId = backgroundWindow.orderId;
+    chrome.runtime.sendMessage({ type: "getTakeawayCart" }, (cart) => {
+        const restaurant = getCurrentRestaurantForCheckout()
 
-        backgroundWindow.glue.contexts.subscribe(gotContext, (data, delta, removed, unbsub) => {
-            const basket = JSON.parse(localStorage.getItem("Basket"));
+        const map = JSON.parse(localStorage.getItem("restaurantMap"));
+        const orderId = map[restaurant];
 
-            const currentState = data;
+        const basket = JSON.parse(localStorage.getItem("Basket"));
+        const currentProducts = Object.keys(cart).reduce((productsArray, username) => {
+            const products = cart[username];
+            productsArray.push(...products);
+            return productsArray
+        }, []);
 
-            const currentProducts = Object.keys(currentState.eats["takeaway"][orderId].cart).reduce((productsArray, machineId, index, self) => {
-                const products = self[machineId];
-                productsArray.push(...products);
-                return productsArray
-            }, []);
 
-            basket.products[orderId] = currentProducts;
-
-            localStorage.setItem("Basket", basket);
-            window.location.reload();
-            unbsub();
-        });
+        basket[orderId].products = currentProducts;
+        localStorage.setItem("Basket", JSON.stringify(basket));
+        window.location.reload();
     });
 };
 
-document.addEventListener("DOMContentLoaded", domContentLoadedCallback);
+if (document.readyState !== 'loading') {
+    domContentLoadedCallback1();
+} else {
+    document.addEventListener("DOMContentLoaded", domContentLoadedCallback1);
+}
