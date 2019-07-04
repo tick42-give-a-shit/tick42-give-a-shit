@@ -180,7 +180,13 @@ const getInfoFromBackgroundScript = () => {
 window.updateRestrooms = (windowObj) => {
     const { restrooms } = windowObj.context;
 
-    Object.keys(restrooms).forEach(restroomId => setRestroomStatus(restroomId, restrooms[restroomId]));
+    Object
+        .keys(restrooms)
+        .forEach(
+            restroomId =>
+                setRestroomStatus(
+                    restroomId,
+                    restrooms[restroomId]));
 };
 
 window.updateMilk = (window) => {
@@ -189,6 +195,7 @@ window.updateMilk = (window) => {
 };
 
 window.updateEats = (window) => {
+
     const { eats } = window.context;
 
     const orders = [];

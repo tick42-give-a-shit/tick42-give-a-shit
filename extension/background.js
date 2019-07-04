@@ -1,5 +1,9 @@
 // KNOWN bug: when two orders happen at the same time one of them might get overriden. Solution: design the context shape to be one level only
+// nice to have: map ip to username
+// nb: bounce gw after changing something in context structure
 
+const gw = "ws://35.242.253.103:5000/gw";
+const gw_user = "tick42_got";
 const gotContext = "GOT_Extension";
 let username;
 
@@ -9,7 +13,7 @@ const contextShape = {
         ["username"]: "username"
     },
     restrooms: {
-        ["2MLEFT"]: false
+        ["2ML"]: false
     },
     milk: true,
     eats: {
@@ -19,7 +23,10 @@ const contextShape = {
                 restaurant: '',
                 orderTime: Date.now(),
                 cart: {
-                    ['userId']: []
+                    ['userId']: [
+                        {
+                        }
+                    ]
                 }
             }
         }
@@ -33,13 +40,13 @@ chrome.runtime.onInstalled.addListener(() => {
 
     const glueConfig = {
         agm: true,
-        context: true,
+        contexts: true,
         auth: {
-            username: "tick42_got",
+            username: gw_user,
             password: "glue_extension"
         },
         gateway: {
-            ws: "ws://35.242.253.103:5000/gw",
+            ws: gw
         }
     };
 
@@ -86,7 +93,7 @@ const handleT42WndCreate = ({ windows }) => windows.forEach(({ name, url, title,
     mode,
     tabGroupId,
     top: 200,
-    left: 200
+    L: 200
 }));
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -94,12 +101,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case "getEats":
             sendResponse(window.context.eats);
             break;
-        case "executeOrder":
-            executeOrder(message);
-            break;
         case "getTakeawayCart":
             console.log("prashtam")
             sendResponse(window.context.eats.takeaway[window.nextToExecute].cart);
+            break;
+        case "startOrder":
+            handleStartOrder(message);
+            break;
+        case "onOrder":
+            handleOrderProductsAdded(message);
+            break;
+        case "executeOrder":
+            executeOrder(message);
             break;
         case "getOrdersForRestaurant":
             const { site, restaurant } = message;
@@ -121,17 +134,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const { value } = message;
             window.glue.contexts.update(gotContext, { air: value })
 
-            break;
 
+            break;
         // case "getMachineId":
         //     sendResponse(window.glue.agm.instance.machine);
         //     break;
-        case "startOrder":
-            handleStartOrder(message);
-            break;
-        case "onOrder":
-            handleOrder(message);
-            break;
         case "T42WndCreate":
             handleT42WndCreate(message);
             break;
@@ -158,18 +165,18 @@ const trySeedInitialState = () => {
         if (!data.restrooms) {
             window.glue.contexts.update(gotContext, {
                 restrooms: {
-                    ["2MLEFT"]: undefined,
-                    ["2MRIGHT"]: undefined,
-                    ["2FLEFT"]: undefined,
-                    ["2FRIGHT"]: undefined,
-                    ["3MLEFT"]: false,
-                    ["3MRIGHT"]: false,
-                    ["3FLEFT"]: false,
-                    ["3FRIGHT"]: false,
-                    ["4MLEFT"]: false,
-                    ["4MRIGHT"]: false,
-                    ["4FLEFT"]: false,
-                    ["4FRIGHT"]: false,
+                    ["2ML"]: undefined,
+                    ["2MR"]: undefined,
+                    ["2FL"]: undefined,
+                    ["2FR"]: undefined,
+                    ["3ML"]: false,
+                    ["3MR"]: false,
+                    ["3FL"]: false,
+                    ["3FR"]: false,
+                    ["4ML"]: false,
+                    ["4MR"]: false,
+                    ["4FL"]: false,
+                    ["4FR"]: false,
                 }
             });
         }
@@ -254,7 +261,7 @@ const handleStartOrder = (message) => {
     }
 };
 
-const handleOrder = (message) => {
+const handleOrderProductsAdded = (message) => {
     const { site, orderId, products, } = message;
     debugger;
     const machineId = username;

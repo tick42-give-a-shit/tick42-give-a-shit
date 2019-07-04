@@ -2,6 +2,7 @@
 #include <WebSocketClient.h>
 #include <ArduinoJson.h>
 
+const String toiletId = "3MLEFT";
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 
@@ -167,7 +168,8 @@ void loop() {
   int state = -1;
   while (client.connected()) {
     data = 
-      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"restrooms\":{\"3MLEFT\":#state#}}}}";
+      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"restrooms\":{\"#toiletId#\":#state#}}}}";
+    data.replace("#toiletId#", toiletId);
     data.replace("#peerId#", peerId);
     data.replace("#contextId#", contextId);
   
