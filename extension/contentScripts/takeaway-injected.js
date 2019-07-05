@@ -93,7 +93,7 @@ const updateDropdownOptions = () => {
                 const takeawayOrderId = currentRestaurantMap[restaurant];
 
                 const productsFromCart = JSON.parse(localStorage.getItem("Basket"))[takeawayOrderId].products;
-                onOrder(productsFromCart, e.target.id);
+                onOrder(productsFromCart, tick42OrderElement.id);
             }, false);
         });
     }

@@ -1,7 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
 #include <ArduinoJson.h>
-#include <ESPMail.h>
 //#include <WiFiClientSecure.h>
 
 // using:
@@ -20,8 +19,23 @@ int debug = 1;
 int state = 1;
 
 // gw host
-char* host = "35.242.253.103";
-// char* host = "192.168.0.2";
+// char* gwHost = "52.48.192.145";
+// int gwPort = 80;
+char* gwHost = "35.242.253.103";
+int gwPort = 5000;
+// char* gwHost = "192.168.0.2";
+
+char* smtpFrom = "t42test@tick42.com";
+char* smtpTo = "velko.nikolov@tick42.com";
+// char* smtpTo = "irina.zasheva@tick42.com";
+char* smtpCC = "velko.nikolov@tick42.com";
+char* smtpUser = "dHJ1c3Rpbmc=";
+char* smtpPassword = "";
+char* smtpSubject = "Out of milk";
+char* smtpBody = "No milk, or someone is trolling us :(";
+
+char* smtpHost = "mail.trustingwolves.com";
+int smtpPort = 587;
 
 // GW HTTP client
 WiFiClient client;
@@ -31,7 +45,7 @@ WebSocketClient webSocketClient;
 // Zapier HTTP client
 WiFiClient/*Secure*/ secureClient;
 // ...........      - waiting for WiFi connection
-// ...   ...   ...  -
+// ...   ...   ...  - connecting to GW
 
 void connectWiFi() {
 
@@ -113,13 +127,13 @@ void loop() {
     return;
   }
 
-  if (!client.connect(host, 5000)) {
+  if (!client.connect(gwHost, gwPort)) {
     morse("...  ...  ...  ");
     return;
   }
 
   webSocketClient.path = "/gw";
-  webSocketClient.host = host;
+  webSocketClient.host = gwHost;
   if (!webSocketClient.handshake(client)) {
     morse("..  ..  ..  ");
     return;
@@ -230,13 +244,13 @@ void loop() {
         }
          /*ESPMail mail;
          mail.begin();
-        
+
          mail.setSubject("velko.nikolov@gmail.com", "EMail Subject");
          mail.addTo("velko.nikolov@gmail.com");
-          
+
          mail.setBody("This is an example e-mail.\nRegards Grzesiek");
          //mail.setHTMLBody("This is an example html <b>e-mail<b/>.\n<u>Regards Grzesiek</u>");
-          
+
          if (mail.send("mail.smtp2go.com", 2525, "velko.nikolov@gmail.com", "MOQcUt8805wI") == 0) {
             Serial.println("Mail send OK");
          } else {
@@ -273,70 +287,87 @@ void loop() {
 
 }
 
+// https://iotdesignpro.com/projects/how-to-send-smtp-email-using-esp8266-nodemcu
 byte sendEmail()
 {
   WiFiClient espClient;
-  if (espClient.connect("mail.blah.com", 587) == 1)
+  if (espClient.connect(smtpHost, smtpPort) == 1)
   {
     Serial.println(F("connected"));
   }
   else
   {
     Serial.println(F("connection failed"));
-
     return 0;
   }
+
   if (!emailResp(espClient)) {
-
     return 0;
   }
- 
+
   Serial.println(F("Sending EHLO"));
   espClient.println("EHLO staafl.nowhere.com");
   if (!emailResp(espClient)) {
-
     return 0;
   }
- 
+
   Serial.println(F("Sending auth login"));
   espClient.println("AUTH LOGIN");
   if (!emailResp(espClient)) {
+    return 0;
+  }
 
+  Serial.println(F("Sending User"));
+
+  espClient.println(smtpUser);
+  if (!emailResp(espClient)) {
     return 0;
   }
-                  
+
+  Serial.println(F("Sending Password"));
+
+  espClient.println(smtpPassword);
+  if (!emailResp(espClient)) {
+    return 0;
+  }
+
   Serial.println(F("Sending From"));
- 
-  espClient.println(F("MAIL From: velko.nikolov@tick42.com")); // Enter Sender Mail Id
+
+  espClient.println((String("MAIL From: ") + String(smtpFrom)));
   if (!emailResp(espClient)) {
     return 0;
   }
- 
+
   Serial.println(F("Sending To"));
-  espClient.println(F("RCPT To: velko.nikolov@tick42.com")); // Enter Receiver Mail Id
+  espClient.println((String("RCPT To: ") + String(smtpTo)));
   if (!emailResp(espClient)) {
     return 0;
   }
- 
+
+  Serial.println(F("Sending CC"));
+  espClient.println((String("RCPT To: ") + String(smtpCC)));
+  if (!emailResp(espClient)) {
+    return 0;
+  }
+
+
   Serial.println(F("Sending DATA"));
-  espClient.println(F("DATA"));
+  espClient.println(("DATA"));
   if (!emailResp(espClient)) {
     return 0;
   }
+
   Serial.println(F("Sending email"));
- 
-  espClient.println(F("To:  velko.nikolov@tick42.com")); // Enter Receiver Mail Id
-  // change to your address
-  espClient.println(F("From: velko.nikolov@tick42.com")); // Enter Sender Mail Id
-  espClient.println(F("Subject: ESP8266 test e-mail\r\n"));
-  espClient.println(F("This is is a test e-mail sent from ESP8266.\n"));
-  espClient.println(F("Second line of the test e-mail."));
-  espClient.println(F("Third line of the test e-mail."));
-  //
+  espClient.println((String("To: ") + String(smtpTo)));
+  espClient.println((String("Cc: ") + String(smtpCC)));
+  espClient.println((String("From: ") + String(smtpFrom)));
+  espClient.println((String("Subject: ") + String(smtpSubject) + String("\r\n")));
+  espClient.println((String(smtpBody) + String("\n")));
   espClient.println(F("."));
+
   if (!emailResp(espClient))
     return 0;
-  //
+
   Serial.println(F("Sending QUIT"));
   espClient.println(F("QUIT"));
   if (!emailResp(espClient))
@@ -346,18 +377,18 @@ byte sendEmail()
   Serial.println(F("disconnected"));
   return 1;
 }
- 
+
 byte emailResp(WiFiClient espClient)
 {
   byte responseCode;
   byte readByte;
   int loopCount = 0;
- 
+
   while (!espClient.available())
   {
     delay(1);
     loopCount++;
-  
+
     if (loopCount > 20000)
     {
       espClient.stop();
@@ -365,17 +396,16 @@ byte emailResp(WiFiClient espClient)
       return 0;
     }
   }
- 
+
   responseCode = espClient.peek();
   while (espClient.available())
   {
     readByte = espClient.read();
     Serial.write(readByte);
   }
- 
+
   if (responseCode >= '4')
   {
-   
     return 0;
   }
   return 1;

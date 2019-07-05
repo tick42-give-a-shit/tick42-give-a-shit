@@ -7,11 +7,10 @@ const gw_user = "tick42_got";
 const gotContext = "GOT_Extension";
 let username;
 
-// just for reference
 const contextShape = {
-    users: {
-        ["username"]: "username"
-    },
+    users: [
+        "username"
+    ],
     restrooms: {
         ["2ML"]: false
     },
@@ -129,7 +128,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             orders.forEach(k => resultObject = { ...resultObject, [k]: ordersAsObjects[k] });
             sendResponse(resultObject);
             break;
-
         case "setAir":
             const { value } = message;
             window.glue.contexts.update(gotContext, { air: value })
@@ -148,10 +146,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 const trySeedInitialState = () => {
     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-        console.log("TCL: trySeedInitialState -> data", data)
         if (!data.users) {
             window.glue.contexts.update(gotContext, {
-                users: {}
+                users: []
             });
         }
         if (!data.eats) {
@@ -210,22 +207,22 @@ const trySeedInitialState = () => {
 
 const saveUsername = () => {
     window.glue.contexts.subscribe(gotContext, (data, delta, removed, unsub) => {
-        console.log("TCL: saveUsername -> data", data)
-        console.log("TCL: saveUsername -> JSON.stringify(data) === '{}'", JSON.stringify(data) === '{}')
+
+        console.log("data", data);
         if (JSON.stringify(data) === '{}') {
-            console.log('returning');
             return;
         }
+        const currentUsers = JSON.parse(JSON.stringify([...data.users]));
 
-        if (Object.keys(data.users).includes(username)) {
+        if (currentUsers.includes(username)) {
             console.error("ALREDY TAKEN")
-            return;
         }
 
         window.glue.contexts.update(gotContext, {
-            users: {
-                [username]: username
-            }
+            users: [
+                ...currentUsers,
+                username
+            ]
         });
 
         unsub();
@@ -282,10 +279,8 @@ const handleOrderProductsAdded = (message) => {
     }
 };
 
-
 const executeOrder = (message) => {
-    const { restaurant, orderId } = message;
-    window.nextToExecute = orderId;
+    const { restaurant, orderId, site, machineId, products, } = message;
 
     const url = "https://www.takeaway.com/bg/" + "checkout-order-" + restaurant;
 
