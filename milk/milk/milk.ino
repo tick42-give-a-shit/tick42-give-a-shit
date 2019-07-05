@@ -1,13 +1,27 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
 #include <ArduinoJson.h>
+#include <ESPMail.h>
 //#include <WiFiClientSecure.h>
+
+// using:
+// ESP8266-Websocket-master
+// ESP8266WiFi
+// ArduinoJson
 
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 
 const int LED_PIN = 5;
 const uint8_t GPIO0 = 0;
+const uint8_t GPIO4 = 4;
+int debug = 1;
+// has milk?
+int state = 1;
+
+// gw host
+char* host = "35.242.253.103";
+// char* host = "192.168.0.2";
 
 // GW HTTP client
 WiFiClient client;
@@ -16,6 +30,8 @@ WebSocketClient webSocketClient;
 
 // Zapier HTTP client
 WiFiClient/*Secure*/ secureClient;
+// ...........      - waiting for WiFi connection
+// ...   ...   ...  -
 
 void connectWiFi() {
 
@@ -40,6 +56,19 @@ void connectWiFi() {
 
 }
 
+//const char fingerprint[] PROGMEM = "5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
+//const char fingerprint[] PROGMEM = "AF 21 4A 6C 2C E4 CE 6E 99 7B B8 EA 58 CF 57 6B C2 35 A4 0D";
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(GPIO0, INPUT);
+  pinMode(GPIO4, OUTPUT);
+
+  // digitalWrite(GPIO4, HIGH);
+}
+
 void morse(String str) {
   digitalWrite(LED_PIN, LOW);
   delay(500);
@@ -60,19 +89,7 @@ void morse(String str) {
   }
 }
 
-//const char fingerprint[] PROGMEM = "5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
-//const char fingerprint[] PROGMEM = "AF 21 4A 6C 2C E4 CE 6E 99 7B B8 EA 58 CF 57 6B C2 35 A4 0D";
-void setup() {
 
-  Serial.begin(115200);
-
-  pinMode(LED_PIN, OUTPUT);
-  pinMode(GPIO0, INPUT);
-
-  connectWiFi();
-
-
-}
 
 
 
@@ -88,11 +105,6 @@ String getJsonField(String json, String field) {
 
 void loop() {
 
-  int debug = 0;
-  char* host = "35.242.253.103";
-  if (debug) {
-    host = "192.168.1.201";
-  }
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
@@ -177,7 +189,7 @@ void loop() {
         "delta": { state: "true" }
     });
   */
-  int state = 1;
+
   while (client.connected()) {
     data =
       "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"milk\":#state#}}}";
@@ -206,12 +218,32 @@ void loop() {
     }
 
     if (pressed) {
+      digitalWrite(GPIO4, state ? LOW : HIGH);
+
       data.replace("#state#", state ? "true" : "false");
 
       webSocketClient.sendData(data);
+
       if (!state) {
-        //secureClient.setFingerprint(fingerprint);
-        if (secureClient.connect("192.168.1.201", 3000)) {
+        if (sendEmail()){}else{
+
+        }
+         /*ESPMail mail;
+         mail.begin();
+        
+         mail.setSubject("velko.nikolov@gmail.com", "EMail Subject");
+         mail.addTo("velko.nikolov@gmail.com");
+          
+         mail.setBody("This is an example e-mail.\nRegards Grzesiek");
+         //mail.setHTMLBody("This is an example html <b>e-mail<b/>.\n<u>Regards Grzesiek</u>");
+          
+         if (mail.send("mail.smtp2go.com", 2525, "velko.nikolov@gmail.com", "MOQcUt8805wI") == 0) {
+            Serial.println("Mail send OK");
+         } else {
+          morse(".. .. .. .. ");
+        }*/
+        /*//secureClient.setFingerprint(fingerprint);
+        if (secureClient.connect(zapierUrl)) {
           secureClient.print(String("GET ") + String("/") + " HTTP/1.1\r\n" +
                              "Connection: close\r\n\r\n\r\n");
           while (secureClient.connected()) {
@@ -224,10 +256,9 @@ void loop() {
         }
         else {
           morse(".. .. .. .. ");
-        }
+        }*/
       }
 
-      digitalWrite(LED_PIN, !state ? HIGH : LOW);
 
       // drain websocket
       webSocketClient.getData(data);
@@ -240,4 +271,112 @@ void loop() {
 
   }
 
+}
+
+byte sendEmail()
+{
+  WiFiClient espClient;
+  if (espClient.connect("mail.blah.com", 587) == 1)
+  {
+    Serial.println(F("connected"));
+  }
+  else
+  {
+    Serial.println(F("connection failed"));
+
+    return 0;
+  }
+  if (!emailResp(espClient)) {
+
+    return 0;
+  }
+ 
+  Serial.println(F("Sending EHLO"));
+  espClient.println("EHLO staafl.nowhere.com");
+  if (!emailResp(espClient)) {
+
+    return 0;
+  }
+ 
+  Serial.println(F("Sending auth login"));
+  espClient.println("AUTH LOGIN");
+  if (!emailResp(espClient)) {
+
+    return 0;
+  }
+                  
+  Serial.println(F("Sending From"));
+ 
+  espClient.println(F("MAIL From: velko.nikolov@tick42.com")); // Enter Sender Mail Id
+  if (!emailResp(espClient)) {
+    return 0;
+  }
+ 
+  Serial.println(F("Sending To"));
+  espClient.println(F("RCPT To: velko.nikolov@tick42.com")); // Enter Receiver Mail Id
+  if (!emailResp(espClient)) {
+    return 0;
+  }
+ 
+  Serial.println(F("Sending DATA"));
+  espClient.println(F("DATA"));
+  if (!emailResp(espClient)) {
+    return 0;
+  }
+  Serial.println(F("Sending email"));
+ 
+  espClient.println(F("To:  velko.nikolov@tick42.com")); // Enter Receiver Mail Id
+  // change to your address
+  espClient.println(F("From: velko.nikolov@tick42.com")); // Enter Sender Mail Id
+  espClient.println(F("Subject: ESP8266 test e-mail\r\n"));
+  espClient.println(F("This is is a test e-mail sent from ESP8266.\n"));
+  espClient.println(F("Second line of the test e-mail."));
+  espClient.println(F("Third line of the test e-mail."));
+  //
+  espClient.println(F("."));
+  if (!emailResp(espClient))
+    return 0;
+  //
+  Serial.println(F("Sending QUIT"));
+  espClient.println(F("QUIT"));
+  if (!emailResp(espClient))
+    return 0;
+  //
+  espClient.stop();
+  Serial.println(F("disconnected"));
+  return 1;
+}
+ 
+byte emailResp(WiFiClient espClient)
+{
+  byte responseCode;
+  byte readByte;
+  int loopCount = 0;
+ 
+  while (!espClient.available())
+  {
+    delay(1);
+    loopCount++;
+  
+    if (loopCount > 20000)
+    {
+      espClient.stop();
+      Serial.println(F("\r\nTimeout"));
+      return 0;
+    }
+  }
+ 
+  responseCode = espClient.peek();
+  while (espClient.available())
+  {
+    readByte = espClient.read();
+    Serial.write(readByte);
+  }
+ 
+  if (responseCode >= '4')
+  {
+   
+    return 0;
+  }
+  return 1;
 }
