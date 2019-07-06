@@ -8,6 +8,8 @@
 // ESP8266WiFi
 // ArduinoJson
 
+//const char WIFI_SSID[] = "trustingwolves";
+//const char WIFI_PSK[] = "Athena8911;";
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 
@@ -47,28 +49,10 @@ WiFiClient/*Secure*/ secureClient;
 // ...........      - waiting for WiFi connection
 // ...   ...   ...  - connecting to GW
 
-void connectWiFi() {
-
-  Serial.print("connecting");
-  byte led_status = 0;
-
-  // Set WiFi mode to station (client)
-  WiFi.mode(WIFI_STA);
-
-  WiFi.begin(WIFI_SSID, WIFI_PSK);
-
-  // Blink LED while we wait for WiFi connection
-  while ( WiFi.status() != WL_CONNECTED ) {
-    digitalWrite(LED_PIN, led_status);
-    led_status ^= 0x01;
-    delay(100);
-  }
-
-  // Turn LED off when we are connected
-  digitalWrite(LED_PIN, HIGH);
-  Serial.print("done");
-
-}
+byte sendEmail();
+void connectWiFi();
+void morse(String str);
+String getJsonField(String json, String field);
 
 //const char fingerprint[] PROGMEM = "5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
 //const char fingerprint[] PROGMEM = "AF 21 4A 6C 2C E4 CE 6E 99 7B B8 EA 58 CF 57 6B C2 35 A4 0D";
@@ -81,40 +65,6 @@ void setup() {
   pinMode(GPIO4, OUTPUT);
 
   // digitalWrite(GPIO4, HIGH);
-}
-
-void morse(String str) {
-  digitalWrite(LED_PIN, LOW);
-  delay(500);
-  for (int ii = 0; ii < str.length(); ++ii) {
-    if (str.charAt(ii) == '.') {
-      digitalWrite(LED_PIN, HIGH);
-      delay(300);
-      digitalWrite(LED_PIN, LOW);
-      delay(500);
-    } else if (str.charAt(ii) == '-') {
-      digitalWrite(LED_PIN, HIGH);
-      delay(1000);
-      digitalWrite(LED_PIN, LOW);
-      delay(500);
-    } else {
-      delay(1000);
-    }
-  }
-}
-
-
-
-
-
-String getJsonField(String json, String field) {
-  char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
-  char dest[200];
-  int len = strstr(where, "\"") - where;
-  strncpy(dest, where, len);
-  dest[len] = '\0';
-  String value = String(dest);
-  return String(value);
 }
 
 void loop() {
@@ -239,7 +189,7 @@ void loop() {
       webSocketClient.sendData(data);
 
       if (!state) {
-        if (sendEmail()){}else{
+        if (sendEmail()){} else{
 
         }
          /*ESPMail mail;
@@ -409,4 +359,61 @@ byte emailResp(WiFiClient espClient)
     return 0;
   }
   return 1;
+}
+
+
+
+void connectWiFi() {
+
+  Serial.print("connecting");
+  byte led_status = 0;
+
+  // Set WiFi mode to station (client)
+  WiFi.mode(WIFI_STA);
+
+  WiFi.begin(WIFI_SSID, WIFI_PSK);
+
+  // Blink LED while we wait for WiFi connection
+  while ( WiFi.status() != WL_CONNECTED ) {
+    digitalWrite(LED_PIN, led_status);
+    led_status ^= 0x01;
+    delay(100);
+  }
+
+  // Turn LED off when we are connected
+  digitalWrite(LED_PIN, HIGH);
+  Serial.print("done");
+
+}
+
+
+void morse(String str) {
+  digitalWrite(LED_PIN, LOW);
+  delay(500);
+  for (int ii = 0; ii < str.length(); ++ii) {
+    if (str.charAt(ii) == '.') {
+      digitalWrite(LED_PIN, HIGH);
+      delay(300);
+      digitalWrite(LED_PIN, LOW);
+      delay(500);
+    } else if (str.charAt(ii) == '-') {
+      digitalWrite(LED_PIN, HIGH);
+      delay(1000);
+      digitalWrite(LED_PIN, LOW);
+      delay(500);
+    } else {
+      delay(1000);
+    }
+  }
+}
+
+
+String getJsonField(String json, String field) {
+  char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
+  char dest[200];
+  int len = strstr(where, "\"") - where;
+  strncpy(dest, where, len);
+  dest[len] = '\0';
+  String value = String(dest);
+  return String(value);
 }

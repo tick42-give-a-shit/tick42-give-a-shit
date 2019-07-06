@@ -2,9 +2,12 @@
 #include <WebSocketClient.h>
 #include <ArduinoJson.h>
 
-const String toiletId = "3MLEFT";
-const char WIFI_SSID[] = "Pirinsoft";
-const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
+const String toiletId = "3ML";
+
+const char WIFI_SSID[] = "trustingwolves";
+const char WIFI_PSK[] = "Athena8911;";
+//const char WIFI_SSID[] = "Pirinsoft";
+//const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 
 const int LED_PIN = 5;
 const int ANALOG_PIN = A0; // The only analog pin on the Thing
@@ -12,29 +15,16 @@ const int ANALOG_PIN = A0; // The only analog pin on the Thing
 WiFiClient client;
 WebSocketClient webSocketClient;
 
+int debug = 0;
+int refreshDelay = 100;
+//char* gwHost = "35.242.253.103";
+//int gwPort = 5000;
+char* gwHost = "192.168.0.2";
+int gwPort = 5000;
 
-void connectWiFi() {
-
-  Serial.print("connecting");
-  byte led_status = 0;
-
-  // Set WiFi mode to station (client)
-  WiFi.mode(WIFI_STA);
-
-  WiFi.begin(WIFI_SSID, WIFI_PSK);
-
-  // Blink LED while we wait for WiFi connection
-  while ( WiFi.status() != WL_CONNECTED ) {
-    digitalWrite(LED_PIN, led_status);
-    led_status ^= 0x01;
-    delay(100);
-  }
-
-  // Turn LED off when we are connected
-  digitalWrite(LED_PIN, HIGH);
-  Serial.print("done");
-
-}
+String getJsonField(String json, String field);
+void connectWiFi();
+void morse(String str);
 
 void setup() {
 
@@ -44,43 +34,8 @@ void setup() {
   
 }
 
-void morse(String str) {
-  digitalWrite(LED_PIN, LOW);
-  delay(500);
-  for (int ii = 0; ii < str.length(); ++ii) {
-    if (str.charAt(ii) == '.') {
-      digitalWrite(LED_PIN, HIGH);
-      delay(300);
-      digitalWrite(LED_PIN, LOW);
-      delay(500);
-    } else if (str.charAt(ii) == '-') {
-      digitalWrite(LED_PIN, HIGH);
-      delay(1000);
-      digitalWrite(LED_PIN, LOW);
-      delay(500);
-    } else {
-      delay(1000);
-    }
-  }
-}
-
-String getJsonField(String json, String field) {
-  char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
-  char dest[200];
-  int len = strstr(where, "\"") - where;
-  strncpy(dest, where, len);
-  dest[len] = '\0';
-  String value = String(dest);
-  return String(value);
-}
-
 void loop() {
 
-  int debug = 0;
-  char* host = "35.242.253.103";
-  if (debug) {
-    host = "192.168.1.201";
-  }
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
@@ -89,13 +44,13 @@ void loop() {
     return;
   }
 
-  if (!client.connect(host, 5000)) {
+  if (!client.connect(gwHost, gwPort)) {
     morse("...  ...  ...  ");
     return;
   }
 
   webSocketClient.path = "/gw";
-  webSocketClient.host = host;
+  webSocketClient.host = gwHost;
   if (!webSocketClient.handshake(client)) {
     morse("..  ..  ..  ");
     return;
@@ -190,7 +145,63 @@ void loop() {
       // drain websocket
       webSocketClient.getData(data);
     }
-    delay(2000);
+
+    delay(refreshDelay);
   }
 
+}
+
+
+
+void connectWiFi() {
+
+  Serial.print("connecting");
+  byte led_status = 0;
+
+  // Set WiFi mode to station (client)
+  WiFi.mode(WIFI_STA);
+
+  WiFi.begin(WIFI_SSID, WIFI_PSK);
+
+  // Blink LED while we wait for WiFi connection
+  while ( WiFi.status() != WL_CONNECTED ) {
+    digitalWrite(LED_PIN, led_status);
+    led_status ^= 0x01;
+    delay(100);
+  }
+
+  // Turn LED off when we are connected
+  digitalWrite(LED_PIN, HIGH);
+  Serial.print("done");
+
+}
+
+void morse(String str) {
+  digitalWrite(LED_PIN, LOW);
+  delay(500);
+  for (int ii = 0; ii < str.length(); ++ii) {
+    if (str.charAt(ii) == '.') {
+      digitalWrite(LED_PIN, HIGH);
+      delay(300);
+      digitalWrite(LED_PIN, LOW);
+      delay(500);
+    } else if (str.charAt(ii) == '-') {
+      digitalWrite(LED_PIN, HIGH);
+      delay(1000);
+      digitalWrite(LED_PIN, LOW);
+      delay(500);
+    } else {
+      delay(1000);
+    }
+  }
+}
+
+String getJsonField(String json, String field) {
+  char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
+  char dest[200];
+  int len = strstr(where, "\"") - where;
+  strncpy(dest, where, len);
+  dest[len] = '\0';
+  String value = String(dest);
+  return String(value);
 }
