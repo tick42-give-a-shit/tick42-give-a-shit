@@ -4,10 +4,19 @@
 
 const String toiletId = "3ML";
 
+/*
 const char WIFI_SSID[] = "trustingwolves";
 const char WIFI_PSK[] = "Athena8911;";
-//const char WIFI_SSID[] = "Pirinsoft";
-//const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
+char* gwHost = "192.168.0.2";
+
+int gwPort = 5000;
+//*/
+
+char* gwHost = "35.242.253.103";
+// char* gwHost = "192.168.0.221";k
+const char WIFI_SSID[] = "Pirinsoft";
+const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
+int gwPort = 5000;
 
 const int LED_PIN = 5;
 const int ANALOG_PIN = A0; // The only analog pin on the Thing
@@ -17,10 +26,6 @@ WebSocketClient webSocketClient;
 
 int debug = 0;
 int refreshDelay = 100;
-//char* gwHost = "35.242.253.103";
-//int gwPort = 5000;
-char* gwHost = "192.168.0.2";
-int gwPort = 5000;
 
 String getJsonField(String json, String field);
 void connectWiFi();
