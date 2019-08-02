@@ -1,12 +1,10 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
-#include <ArduinoJson.h>
 //#include <WiFiClientSecure.h>
 
 // using:
 // ESP8266-Websocket-master
 // ESP8266WiFi
-// ArduinoJson
 
 //const char WIFI_SSID[] = "trustingwolves";
 //const char WIFI_PSK[] = "Athena8911;";

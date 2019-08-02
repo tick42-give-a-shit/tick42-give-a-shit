@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
-#include <ArduinoJson.h>
 
 const String toiletId = "3ML";
 
