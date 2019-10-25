@@ -3,19 +3,21 @@
 
 const String toiletId = "3ML";
 
-/*
+//*
 const char WIFI_SSID[] = "trustingwolves";
 const char WIFI_PSK[] = "Athena8911;";
-char* gwHost = "192.168.0.2";
+char* gwHost = "192.168.0.3";
 
-int gwPort = 5000;
-//*/
+int gwPort = 8385;
+/*/
 
 char* gwHost = "35.242.253.103";
-// char* gwHost = "192.168.0.221";k
+// char* gwHost = "192.168.0.221";
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
 int gwPort = 5000;
+//*/
+
 
 const int LED_PIN = 5;
 const int ANALOG_PIN = A0; // The only analog pin on the Thing
@@ -53,13 +55,17 @@ void loop() {
     return;
   }
 
+  Serial.println("CONNECTED " + String(gwHost) + ":" + String(gwPort));
+
   webSocketClient.path = "/gw";
   webSocketClient.host = gwHost;
   if (!webSocketClient.handshake(client)) {
     morse("..  ..  ..  ");
     return;
   }
-  
+
+  Serial.println("HANDSHAKE");
+    
   morse(".  .  .  ");
 
   String data;
@@ -82,6 +88,8 @@ void loop() {
 
   data = String("{\"type\":\"hello\",\"request_id\":\"0\",\"domain\":\"global\",\"identity\":{\"application\":\"tick42-got-sensor\"},\"authentication\":{\"method\":\"secret\",\"login\":\"tick42_got\",\"secret\":\"secret\"}}");
   webSocketClient.sendData(data);
+
+  Serial.println("SENT HELLO");
   do {
     delay(5000);
     webSocketClient.getData(data);
@@ -89,7 +97,12 @@ void loop() {
   }
   while (client.connected() && !data.length());
 
+  Serial.println("GOT WELCOME");
+  
   String peerId = getJsonField(data, "peer_id");
+
+  Serial.println("GOT PEER ID" + peerId);
+  Serial.println(peerId);
 
   /*
   JSON.stringify(
@@ -105,6 +118,7 @@ void loop() {
   data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"GOT_Extension\",\"lifetime\":\"retained\"}");
   data.replace("#peerId#", peerId);
   webSocketClient.sendData(data);
+    Serial.println("SENT CREATE CONTEXT ");
   do {
     delay(5000);
     webSocketClient.getData(data);
@@ -112,6 +126,8 @@ void loop() {
   } while (client.connected() && !data.length());
 
   String contextId = getJsonField(data, "context_id");
+  Serial.println("GOT CONTEXT ID " + contextId);
+  Serial.println(contextId);
   
   /*
   JSON.stringify(
@@ -131,23 +147,29 @@ void loop() {
     data.replace("#toiletId#", toiletId);
     data.replace("#peerId#", peerId);
     data.replace("#contextId#", contextId);
-  
-    int mappedValue = (int)(603.74 * pow(map(analogRead(ANALOG_PIN), 0, (1<<10)-1, 0, 5000)/1000.0, -1.16));
+
+    int got = analogRead(ANALOG_PIN);
+    int mappedValue = (int)(603.74 * pow(map(got, 0, (1<<10)-1, 0, 5000)/1000.0, -1.16));
     int newState = mappedValue < 900;
+    Serial.println("RAW: " + String(got));
+    Serial.println("MAPPED: " + String(mappedValue));
     if (debug) {
       webSocketClient.sendData(String(mappedValue));
     }
     if (state != newState) {
+      Serial.println("newState " + String(newState));
       state = newState;
 
       data.replace("#state#", state ? "true" : "false");
 
       digitalWrite(LED_PIN, state ? HIGH : LOW);
 
+      Serial.println("SENDING DATA");
       webSocketClient.sendData(data);
-
+      Serial.println("SENT DATA");
       // drain websocket
       webSocketClient.getData(data);
+      Serial.println("GOT RESPONSE");
     }
 
     delay(refreshDelay);
@@ -159,7 +181,7 @@ void loop() {
 
 void connectWiFi() {
 
-  Serial.print("connecting");
+  Serial.println("connecting");
   byte led_status = 0;
 
   // Set WiFi mode to station (client)
@@ -176,7 +198,7 @@ void connectWiFi() {
 
   // Turn LED off when we are connected
   digitalWrite(LED_PIN, HIGH);
-  Serial.print("done");
+  Serial.println("done");
 
 }
 
