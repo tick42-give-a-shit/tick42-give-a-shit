@@ -1,9 +1,14 @@
+#define TCP_MSS 1500
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
 
-const String toiletId = "3ML";
+int reqId = 3;
+int tick = 0;
+const int debug = 0;
+const int refreshDelay = 100;
+const String toiletId = "MR3";
 
-//*
+/*
 const char WIFI_SSID[] = "trustingwolves";
 const char WIFI_PSK[] = "Athena8911;";
 char* gwHost = "192.168.0.3";
@@ -11,11 +16,13 @@ char* gwHost = "192.168.0.3";
 int gwPort = 8385;
 /*/
 
-char* gwHost = "35.242.253.103";
+char* gwHost = "dock01.tick42.com";
+// char* gwHost = "zapdev1.tick42.com"; //35.242.253.103";
 // char* gwHost = "192.168.0.221";
 const char WIFI_SSID[] = "Pirinsoft";
 const char WIFI_PSK[] = "+rqcP3_nnhSH]Yr%";
-int gwPort = 5000;
+// int gwPort = 5000;
+int gwPort = 8389;
 //*/
 
 
@@ -24,9 +31,6 @@ const int ANALOG_PIN = A0; // The only analog pin on the Thing
 
 WiFiClient client;
 WebSocketClient webSocketClient;
-
-int debug = 0;
-int refreshDelay = 100;
 
 String getJsonField(String json, String field);
 void connectWiFi();
@@ -37,7 +41,7 @@ void setup() {
   Serial.begin(115200);
 
   pinMode(LED_PIN, OUTPUT);
-  
+
 }
 
 void loop() {
@@ -45,17 +49,20 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
-  
+
   if (WiFi.status() != WL_CONNECTED) {
     return;
   }
 
+  if (debug) Serial.println("CONNECTING TO " + String(gwHost));
+  
   if (!client.connect(gwHost, gwPort)) {
+    
     morse("...  ...  ...  ");
     return;
   }
 
-  Serial.println("CONNECTED " + String(gwHost) + ":" + String(gwPort));
+  if (debug) Serial.println("CONNECTED " + String(gwHost) + ":" + String(gwPort));
 
   webSocketClient.path = "/gw";
   webSocketClient.host = gwHost;
@@ -64,8 +71,8 @@ void loop() {
     return;
   }
 
-  Serial.println("HANDSHAKE");
-    
+  if (debug) Serial.println("HANDSHAKE");
+
   morse(".  .  .  ");
 
   String data;
@@ -86,23 +93,23 @@ void loop() {
       });
   */
 
-  data = String("{\"type\":\"hello\",\"request_id\":\"0\",\"domain\":\"global\",\"identity\":{\"application\":\"tick42-got-sensor\"},\"authentication\":{\"method\":\"secret\",\"login\":\"tick42_got\",\"secret\":\"secret\"}}");
+  data = String("{\"type\":\"hello\",\"request_id\":\"0\",\"domain\":\"global\",\"identity\":{\"application\":\"tick42-got-sensor\"},\"authentication\":{\"method\":\"secret\",\"login\":\"vnikolov\",\"secret\":\"\"}}");
   webSocketClient.sendData(data);
 
-  Serial.println("SENT HELLO");
+  if (debug) Serial.println("SENT HELLO");
   do {
     delay(5000);
     webSocketClient.getData(data);
     morse("...  ...  ...  ");
+    if (debug) Serial.println(String("(1) GOT ") + String(data.length()) + String(" bytes"));
   }
   while (client.connected() && !data.length());
 
-  Serial.println("GOT WELCOME");
-  
+  if (debug) Serial.println("GOT WELCOME");
+
   String peerId = getJsonField(data, "peer_id");
 
-  Serial.println("GOT PEER ID" + peerId);
-  Serial.println(peerId);
+  if (debug) Serial.println("GOT PEER ID" + peerId);
 
   /*
   JSON.stringify(
@@ -117,18 +124,32 @@ void loop() {
   */
   data = String("{\"domain\":\"global\",\"type\":\"create-context\",\"peer_id\":\"#peerId#\",\"request_id\":\"1\",\"name\":\"GOT_Extension\",\"lifetime\":\"retained\"}");
   data.replace("#peerId#", peerId);
+  
   webSocketClient.sendData(data);
-    Serial.println("SENT CREATE CONTEXT ");
+
+  if (debug) Serial.println("SENT CREATE CONTEXT ");
   do {
     delay(5000);
     webSocketClient.getData(data);
     morse("...  ...  ...  ");
   } while (client.connected() && !data.length());
+  String contextId;
+  do {
+    delay(5000);
+    webSocketClient.getData(data);
+    morse("...  ...  ...  ");
+    if (debug) Serial.println(String("(2) GOT ") + String(data.length()) + String(" bytes ") + data);
+    contextId = getJsonField(data, "context_id");
+    String name = getJsonField(data, "name");
+    if (!contextId.length()){ continue; }
+    if (name == String("GOT_Extension") || !name.length()) { break; }
+  }
+  while (client.connected());
 
-  String contextId = getJsonField(data, "context_id");
-  Serial.println("GOT CONTEXT ID " + contextId);
-  Serial.println(contextId);
+  if (!contextId.length()) return;
   
+  if (debug) Serial.println("GOT CONTEXT ID " + contextId);
+
   /*
   JSON.stringify(
     {
@@ -140,36 +161,67 @@ void loop() {
         "delta": { state: "true" }
     });
   */
-  int state = -1;
+  int occupied = -1;
+  int score = 0;
   while (client.connected()) {
-    data = 
-      "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"3\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"restrooms\":{\"#toiletId#\":#state#}}}}";
-    data.replace("#toiletId#", toiletId);
-    data.replace("#peerId#", peerId);
-    data.replace("#contextId#", contextId);
-
     int got = analogRead(ANALOG_PIN);
-    int mappedValue = (int)(603.74 * pow(map(got, 0, (1<<10)-1, 0, 5000)/1000.0, -1.16));
-    int newState = mappedValue < 900;
-    Serial.println("RAW: " + String(got));
-    Serial.println("MAPPED: " + String(mappedValue));
+    int mappedValue = (int)(603.74 * pow(map(got, 0, (1<<10)-1, 0, 5000)/1000.0, -1.16)) * 6;
+    int newOccupied = mappedValue < 900;
+    if (debug) Serial.println("RAW: " + String(got));
+    if (debug) Serial.println("MAPPED: " + String(mappedValue));
+    int mod = (tick % (60*1000/refreshDelay));
+    //if (debug) Serial.println("mod " + String(mod));
     if (debug) {
-      webSocketClient.sendData(String(mappedValue));
+      // webSocketClient.sendData(String(mappedValue));
     }
-    if (state != newState) {
-      Serial.println("newState " + String(newState));
-      state = newState;
+    tick += 1;
 
-      data.replace("#state#", state ? "true" : "false");
+    // update at least once a minute
+    if (occupied != newOccupied || mod == 1) {
 
-      digitalWrite(LED_PIN, state ? HIGH : LOW);
+      if (debug) Serial.println("score " + String(score));
+      if (debug) Serial.println("occupied " + String(occupied));
+      if (debug) Serial.println("newOccupied " + String(newOccupied));
+      
+      if (newOccupied) {
+        score = 10000 / refreshDelay;
+      } else {
+        score -= 1;
+        if (score > 0 && mod != 1) {
+          delay(refreshDelay);
+          continue;
+        }
+        if (score < -1) {
+          score = -1;
+        }
+      }
+      if (debug) Serial.println("score2 " + String(score));
+      
+      data =
+        "{\"domain\":\"global\",\"type\":\"update-context\",\"request_id\":\"#reqId#\",\"peer_id\":\"#peerId#\",\"context_id\":\"#contextId#\",\"delta\":{\"updated\":{\"restrooms\":{\"#toiletId#\":{\"occupied\":#occupied#,\"tick\":#tick#}}}}}";
+      data.replace("#toiletId#", toiletId);
+      data.replace("#peerId#", peerId);
+      data.replace("#contextId#", contextId);
+      data.replace("#tick#", String(tick));
+      data.replace("#reqId#", String(reqId++));
+      
+      occupied = score > 0;
 
-      Serial.println("SENDING DATA");
+      data.replace("#occupied#", occupied ? "true" : "false");
+
+      if (debug) Serial.println("data " + String(data));
+
+      digitalWrite(LED_PIN, occupied ? HIGH : LOW);
+
+      if (debug) Serial.println("SENDING DATA");
       webSocketClient.sendData(data);
-      Serial.println("SENT DATA");
+      
+      if (debug) Serial.println("SENT DATA");
+      
       // drain websocket
       webSocketClient.getData(data);
-      Serial.println("GOT RESPONSE");
+      
+      if (debug) Serial.println("GOT RESPONSE");
     }
 
     delay(refreshDelay);
@@ -181,24 +233,30 @@ void loop() {
 
 void connectWiFi() {
 
-  Serial.println("connecting");
+  if (debug) Serial.println("CONNECTING TO WIFI");
   byte led_status = 0;
 
   // Set WiFi mode to station (client)
   WiFi.mode(WIFI_STA);
+  if (debug) Serial.println(WiFi.localIP());
+  WiFi.enableAP(false);
+  //WiFi.dnsIP(8 | (8 << 8) | (8 << 16) | (8 << 24));
 
   WiFi.begin(WIFI_SSID, WIFI_PSK);
+  //WiFi.softAPdisconnect(true);
 
   // Blink LED while we wait for WiFi connection
-  while ( WiFi.status() != WL_CONNECTED ) {
+  while ( WiFi.waitForConnectResult() != WL_CONNECTED ) {
+
     digitalWrite(LED_PIN, led_status);
+
     led_status ^= 0x01;
     delay(100);
   }
 
   // Turn LED off when we are connected
   digitalWrite(LED_PIN, HIGH);
-  Serial.println("done");
+  if (debug) Serial.println("DONE");
 
 }
 
