@@ -1,4 +1,4 @@
-K#define TCP_MSS 1500
+#define TCP_MSS 1500
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
 
