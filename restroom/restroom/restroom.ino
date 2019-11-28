@@ -1,12 +1,12 @@
-#define TCP_MSS 1500
+K#define TCP_MSS 1500
 #include <ESP8266WiFi.h>
 #include <WebSocketClient.h>
 
 int reqId = 3;
 int tick = 0;
-const int debug = 0;
+const int debug = 1;
 const int refreshDelay = 100;
-const String toiletId = "MR3";
+const String toiletId = "ML2";
 
 /*
 const char WIFI_SSID[] = "trustingwolves";
@@ -39,7 +39,7 @@ void morse(String str);
 void setup() {
 
   Serial.begin(115200);
-
+  wifi_set_sleep_type(NONE_SLEEP_T);
   pinMode(LED_PIN, OUTPUT);
 
 }
@@ -51,13 +51,13 @@ void loop() {
   }
 
   if (WiFi.status() != WL_CONNECTED) {
+    morse("..  ..  ..  ");
     return;
   }
 
   if (debug) Serial.println("CONNECTING TO " + String(gwHost));
   
   if (!client.connect(gwHost, gwPort)) {
-    
     morse("...  ...  ...  ");
     return;
   }
@@ -67,13 +67,13 @@ void loop() {
   webSocketClient.path = "/gw";
   webSocketClient.host = gwHost;
   if (!webSocketClient.handshake(client)) {
-    morse("..  ..  ..  ");
+    morse(".  .  .  ");
     return;
   }
 
   if (debug) Serial.println("HANDSHAKE");
 
-  morse(".  .  .  ");
+  morse("....  ....  ....  ");
 
   String data;
   /*
@@ -98,14 +98,17 @@ void loop() {
 
   if (debug) Serial.println("SENT HELLO");
   do {
-    delay(5000);
-    webSocketClient.getData(data);
-    morse("...  ...  ...  ");
-    if (debug) Serial.println(String("(1) GOT ") + String(data.length()) + String(" bytes"));
-  }
-  while (client.connected() && !data.length());
+    if (!webSocketClient.getData(data)) {
+      morse("...  .  ...  .  ...  .  ");
+      delay(5000);
+      continue;
+    }
 
-  if (debug) Serial.println("GOT WELCOME");
+    if (debug) Serial.println(String("(1) GOT ") + String(data.length()) + String(" bytes"));
+    break;
+  } while (client.connected());
+
+  if (debug) Serial.println("GOT WELCOME " + data);
 
   String peerId = getJsonField(data, "peer_id");
 
@@ -128,23 +131,22 @@ void loop() {
   webSocketClient.sendData(data);
 
   if (debug) Serial.println("SENT CREATE CONTEXT ");
-  do {
-    delay(5000);
-    webSocketClient.getData(data);
-    morse("...  ...  ...  ");
-  } while (client.connected() && !data.length());
+
   String contextId;
   do {
-    delay(5000);
-    webSocketClient.getData(data);
-    morse("...  ...  ...  ");
+
+    if (!webSocketClient.getData(data)) {
+      morse("...  ..  ...  ..  ...  ..  ");
+      delay(5000);
+      continue;
+    }
+
     if (debug) Serial.println(String("(2) GOT ") + String(data.length()) + String(" bytes ") + data);
     contextId = getJsonField(data, "context_id");
     String name = getJsonField(data, "name");
     if (!contextId.length()){ continue; }
     if (name == String("GOT_Extension") || !name.length()) { break; }
-  }
-  while (client.connected());
+  } while (client.connected());
 
   if (!contextId.length()) return;
   
@@ -166,9 +168,9 @@ void loop() {
   while (client.connected()) {
     int got = analogRead(ANALOG_PIN);
     int mappedValue = (int)(603.74 * pow(map(got, 0, (1<<10)-1, 0, 5000)/1000.0, -1.16)) * 6;
-    int newOccupied = mappedValue < 900;
-    if (debug) Serial.println("RAW: " + String(got));
-    if (debug) Serial.println("MAPPED: " + String(mappedValue));
+    int newOccupied = mappedValue < 500;
+    //if (debug) Serial.println("RAW: " + String(got));
+    //if (debug) Serial.println("MAPPED: " + String(mappedValue));
     int mod = (tick % (60*1000/refreshDelay));
     //if (debug) Serial.println("mod " + String(mod));
     if (debug) {
@@ -219,9 +221,9 @@ void loop() {
       if (debug) Serial.println("SENT DATA");
       
       // drain websocket
-      webSocketClient.getData(data);
-      
-      if (debug) Serial.println("GOT RESPONSE");
+      while (webSocketClient.getData(data)) {
+        if (debug) Serial.println("GOT RESPONSE " + String(data));
+      }
     }
 
     delay(refreshDelay);
@@ -280,12 +282,29 @@ void morse(String str) {
   }
 }
 
+// only works with strings
 String getJsonField(String json, String field) {
-  char* where = strstr(strstr(strstr(json.c_str(), field.c_str()), "\"") + 1, "\"") + 1;
-  char dest[200];
-  int len = strstr(where, "\"") - where;
+  char* fieldLoc = strstr(json.c_str(), field.c_str());
+  if (!fieldLoc) {
+    return "";
+  }
+  char* fieldRQuote = strstr(fieldLoc, "\"");
+  if (!fieldRQuote) {
+    return "";
+  }
+  char* valueLQuote = strstr(fieldRQuote + 1, "\"");
+  if (!valueLQuote) {
+    return "";
+  }
+  char* where = valueLQuote + 1;
+  char dest[1200];
+  char* valueRQuote = strstr(where, "\"");
+  if (!valueRQuote) {
+    return "";
+  }
+  int len = valueRQuote - where;
   strncpy(dest, where, len);
   dest[len] = '\0';
   String value = String(dest);
-  return String(value);
+  return value;
 }
